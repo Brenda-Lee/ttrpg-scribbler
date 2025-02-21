@@ -1,8 +1,8 @@
 import Image from "next/image";
-import Tiptap from "./app/frontend/components/Tiptap";
+import Editor from "./app/frontend/components/Editor";
 
 export default function Home() {
   return (
-    <Tiptap />
+    <Editor />
   );
 }
