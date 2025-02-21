@@ -7,7 +7,14 @@ const Tiptap = () => {
   const editor = useEditor({
     extensions: [StarterKit],
     content: '<p>Hello World! 🌎️</p>',
+    editorProps: {
+      renderHTML: () => '',
+      immediatelyRender: false,
+    },
   })
+  if (!editor) {
+    return null
+  }
 
   return <EditorContent editor={editor} />
 }

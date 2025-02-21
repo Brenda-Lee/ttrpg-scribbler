@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Tiptap from "../frontend/components/Tiptap";
+import Tiptap from "./frontend/components/Tiptap";
 
 export default function Home() {
   return (
