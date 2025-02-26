@@ -46,10 +46,12 @@ export default function Editor() {
                         <RxFontItalic className='w-3 h-3'/>
                     </button>
                     <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        <RxStretchVertically className='w-3 h-3'/>Uppercase
+                        {/* Uppercase */}
+                        <RxStretchVertically className='w-3 h-3'/>
                     </button>
                     <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        <RxFontBold className='w-3 h-3'/>Underscore
+                        {/* Underscore */}
+                        <RxStrikethrough className='w-3 h-3'/>
                     </button>
                 </BubbleMenu>
             )}
