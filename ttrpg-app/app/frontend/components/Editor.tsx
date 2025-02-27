@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
