@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Editor from "./frontend/components/Editor";
+import Editor from "./(frontend)/components/Editor";
 
 export default function App() {
   return (

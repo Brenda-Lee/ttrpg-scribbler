@@ -34,7 +34,7 @@ export default function Editor() {
     return (
         <>
             <EditorContent 
-                className='max-w-[789px] mx-auto pt-16'
+                className='max-w-[789px] mx-auto pt-16 bg-zinc-100'
                 editor={editor}
             />
             { editor && (
