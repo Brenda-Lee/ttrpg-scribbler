@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@tiptap/extension-floating-menu": "^2.14.0",
+    "@tiptap/extension-underline": "^2.14.0"
+  }
+}

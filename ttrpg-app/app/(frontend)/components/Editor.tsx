@@ -1,11 +1,25 @@
 "use client"
 
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
+import {
+    useEditor,
+    EditorContent,
+    BubbleMenu,
+    FloatingMenu
+} from '@tiptap/react'
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
+import Underline from '@tiptap/extension-underline'
 import StarterKit from '@tiptap/starter-kit'
 import { createLowlight, all } from 'lowlight'
 import html from 'highlight.js/lib/languages/xml'
-import { RxFontBold, RxFontItalic, RxStretchVertically, RxStrikethrough} from 'react-icons/rx'
+import { 
+    RxFontBold,
+    RxFontItalic,
+    RxStretchVertically,
+    RxStrikethrough,
+    RxChevronDown,
+    RxChatBubble
+} from 'react-icons/rx'
+import { BubbleButton } from './BubbleButton'
 
 const lowlight = createLowlight(all)
 
@@ -15,9 +29,15 @@ export default function Editor() {
     const editor = useEditor({
         extensions: [
             StarterKit,
+            Underline,
             CodeBlockLowlight.configure({
                 lowlight,
             }),
+            Underline.configure({
+              HTMLAttributes: {
+                class: 'my-custom-class',
+              },
+            })
         ],
         content: '<p>Hello World! 🌎️</p>',
         editorProps: {
@@ -38,21 +58,48 @@ export default function Editor() {
                 editor={editor}
             />
             { editor && (
-                <BubbleMenu className='bg-zinc-700 shadow-xl border border-zinc-800 shadow-black/28 rounded-lg overflow-hidden flex divide-x divide-zinc-680' editor={editor}>
-                    <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        <RxFontBold className='w-3 h-3'/>
-                    </button>
-                    <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        <RxFontItalic className='w-3 h-3'/>
-                    </button>
-                    <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        {/* Uppercase */}
-                        <RxStretchVertically className='w-3 h-3'/>
-                    </button>
-                    <button className='p-2 text-zinc-300 text-sm flex items-center gap-1.5 font-medium leading-none hover:text-zinc-50 hover:bg-zinc-600'>
-                        {/* Underscore */}
-                        <RxStrikethrough className='w-3 h-3'/>
-                    </button>
+                <FloatingMenu
+                    editor={editor}
+                    shouldShow={() => {
+                        return true
+                    }}>
+                    Bold
+                </FloatingMenu>
+            )}
+            { editor && (
+                <BubbleMenu editor={editor} className='bg-zinc-700 shadow-xl border border-zinc-800 shadow-black/28 rounded-lg overflow-hidden flex divide-x divide-zinc-680'>
+                    <BubbleButton>
+                        Texto
+                        <RxChevronDown className='w-3 h-3'/>
+                    </BubbleButton>
+                    <BubbleButton>
+                        Comentário
+                        <RxChatBubble className='w-3 h-3'/>
+                    </BubbleButton>
+                    <div className='flex items-center'>
+                        <BubbleButton
+                            onClick={() => editor.chain().focus().toggleBold().run()}
+                            data-active={editor.isActive('bold')}>
+                            <RxFontBold className='w-3 h-3'/>
+                        </BubbleButton>
+                        <BubbleButton
+                            onClick={() => editor.chain().focus().toggleItalic().run()}
+                            data-active={editor.isActive('italic')}>
+                            <RxFontItalic className='w-3 h-3'/>
+                        </BubbleButton>
+                        <BubbleButton
+                            onClick={() => editor.chain().focus().toggleStrike().run()}
+                            data-active={editor.isActive('strike')}>
+                            {/* Uppercase */}
+                            <RxStretchVertically className='w-3 h-3'/>
+                        </BubbleButton>
+                        <BubbleButton
+                            onClick={() => editor.chain().focus().toggleUnderline().run()}
+                            data-active={editor.isActive('underline')}>
+                            {/* Underscore */}
+                            <RxStrikethrough className='w-3 h-3'/>
+                        </BubbleButton>
+                    </div>
                 </BubbleMenu>
             )}
         </>
