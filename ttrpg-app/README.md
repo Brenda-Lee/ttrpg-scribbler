@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TTRPG Scribbler
 
-## Getting Started
+Compêndio de escrita para escritores de fantasia e mestres de RPG de mesa — inspirado em Novelcrafter e Scrivener, com foco em campanhas de TTRPG (PT-BR).
 
-First, run the development server:
+## Stack
+
+- **Next.js 15** (App Router, RSC, Server Actions) + **React 19** + **TypeScript**
+- **Tailwind CSS 3** + **ShadCN/UI** + **lucide-react**
+- **Tiptap 3** (StarterKit + Underline/Link/Placeholder/Typography/TaskList + extensão custom `GlossaryMention`)
+- **Prisma 6** + **SQLite** local (`prisma/dev.db`)
+- **Zustand** para estado leve (workspace, save status)
+- **Zod** para validação nas API routes
+
+## Como rodar (primeira vez)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run db:push     # cria as tabelas em prisma/dev.db
+npm run db:seed     # popula com o projeto demo "A Queda de Valoran"
+npm run dev         # abre em http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Após editar `prisma/schema.prisma`, rode novamente `npm run db:push` (ou crie uma migração com `npx prisma migrate dev`). Para inspecionar dados visualmente: `npm run db:studio`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/                 Next.js App Router
+  projects/          Rotas de projetos (listagem, novo, shell por projeto)
+  api/               API routes (scenes, glossary, characters, world)
+src/
+  components/        UI por domínio (shell, editor, projects, scenes, glossary, characters, world, ui)
+  lib/               db.ts (Prisma singleton), auth.ts (MVP single-user), utils.ts, tiptap/
+  stores/            workspace.ts (Zustand)
+prisma/
+  schema.prisma      modelo de dados
+  seed.ts            popula projeto demo
+```
 
-## Learn More
+## MVP atual
 
-To learn more about Next.js, take a look at the following resources:
+- Listagem de projetos + criação.
+- Shell por projeto: top tabs + sidebar esquerda de entidades + painel direito.
+- Estrutura Ato → Capítulo → Cena com criação inline.
+- Editor Tiptap rico com autosave (debounce 800ms) e toolbar.
+- Glossário com classe gramatical, gênero, "tratar como nome próprio", "case sensitive".
+- Mention inline no editor: digite `@` para inserir um termo do glossário.
+- Personagens (PC/NPC/Vilão/Monstro) com biografia e atributos JSON livres.
+- Mundo: locais e itens.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Não implementado (fases pós-MVP — ver plano)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Exportação PDF, mapa interativo, mapa de ferimentos, timeline de eventos, revisão gramatical PT-BR, autenticação multiusuário/DM↔Player, upload de mídia avançada, wrapper desktop (Tauri).
 
-## Deploy on Vercel
+## Convenções
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Idioma da UI: **PT-BR**.
+- Imports usam o alias `@/*` → `./src/*` (configurado em `tsconfig.json`).
+- Componentes ShadCN ficam em `src/components/ui/` — modifique livremente, são parte do código do projeto.
+- API routes validam o payload com Zod e checam ownership do projeto via `getCurrentUser()`.

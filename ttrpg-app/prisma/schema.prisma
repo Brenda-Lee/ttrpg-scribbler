@@ -1,0 +1,200 @@
+// TTRPG Scribbler — schema MVP (SQLite local)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  createdAt DateTime @default(now())
+
+  projects Project[] @relation("OwnerProjects")
+  members  Member[]
+}
+
+model System {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  rulesJson String? // JSON serializado (atributos, classes, etc.)
+
+  projects Project[]
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  ownerId   String
+  systemId  String?
+  title     String
+  summary   String?
+  status    String   @default("ACTIVE") // ACTIVE | ARCHIVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner       User             @relation("OwnerProjects", fields: [ownerId], references: [id], onDelete: Cascade)
+  system      System?          @relation(fields: [systemId], references: [id])
+  members     Member[]
+  acts        Act[]
+  characters  Character[]
+  locations   Location[]
+  items       Item[]
+  glossary    GlossaryTerm[]
+  tags        Tag[]
+  assets      Asset[]
+
+  @@index([ownerId])
+}
+
+model Member {
+  id        String @id @default(cuid())
+  userId    String
+  projectId String
+  role      String // DM | PLAYER
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model Act {
+  id        String @id @default(cuid())
+  projectId String
+  title     String
+  order     Int    @default(0)
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  chapters Chapter[]
+
+  @@index([projectId, order])
+}
+
+model Chapter {
+  id      String  @id @default(cuid())
+  actId   String
+  title   String
+  summary String?
+  order   Int     @default(0)
+
+  act    Act     @relation(fields: [actId], references: [id], onDelete: Cascade)
+  scenes Scene[]
+
+  @@index([actId, order])
+}
+
+model Scene {
+  id          String   @id @default(cuid())
+  chapterId   String
+  title       String
+  order       Int      @default(0)
+  contentJson String   @default("{}") // Tiptap JSONContent serializado
+  contentText String   @default("")
+  wordCount   Int      @default(0)
+  status      String   @default("DRAFT") // DRAFT | REVISING | DONE
+  updatedAt   DateTime @updatedAt
+
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([chapterId, order])
+}
+
+model Character {
+  id              String  @id @default(cuid())
+  projectId       String
+  name            String
+  role            String  @default("NPC") // PC | NPC | VILLAIN | MONSTER
+  bio             String?
+  attributesJson  String? // JSON serializado livre
+  avatarAssetId   String?
+
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  avatarAsset   Asset?          @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
+  glossaryLinks GlossaryTerm[]  @relation("TermCharacter")
+
+  @@index([projectId])
+}
+
+model Location {
+  id          String  @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  parentId    String?
+  metaJson    String?
+
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent        Location?       @relation("LocationParent", fields: [parentId], references: [id])
+  children      Location[]      @relation("LocationParent")
+  glossaryLinks GlossaryTerm[]  @relation("TermLocation")
+
+  @@index([projectId])
+}
+
+model Item {
+  id          String  @id @default(cuid())
+  projectId   String
+  name        String
+  description String?
+  metaJson    String?
+
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  glossaryLinks GlossaryTerm[]  @relation("TermItem")
+
+  @@index([projectId])
+}
+
+model GlossaryTerm {
+  id              String  @id @default(cuid())
+  projectId       String
+  term            String
+  slug            String
+  definition      String
+  partOfSpeech    String  @default("NOUN") // NOUN | VERB | ADJ | ADV | PROPER_NOUN | OTHER
+  gender          String? // M | F | N
+  conjugationJson String? // JSON com formas conjugadas
+  treatAsProper   Boolean @default(false)
+  caseSensitive   Boolean @default(false)
+
+  relatedCharacterId String?
+  relatedLocationId  String?
+  relatedItemId      String?
+
+  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  relatedCharacter  Character? @relation("TermCharacter", fields: [relatedCharacterId], references: [id])
+  relatedLocation   Location?  @relation("TermLocation", fields: [relatedLocationId], references: [id])
+  relatedItem       Item?      @relation("TermItem", fields: [relatedItemId], references: [id])
+
+  @@unique([projectId, slug])
+  @@index([projectId, term])
+}
+
+model Tag {
+  id        String @id @default(cuid())
+  projectId String
+  name      String
+  color     String @default("#94a3b8")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+}
+
+model Asset {
+  id        String @id @default(cuid())
+  projectId String
+  kind      String // IMAGE | AUDIO
+  path      String
+  mime      String
+  sizeBytes Int
+
+  project           Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  charactersAvatar  Character[] @relation("CharacterAvatar")
+
+  @@index([projectId])
+}
