@@ -6,6 +6,7 @@ export async function resetDb() {
   await prisma.glossaryTerm.deleteMany();
   await prisma.tag.deleteMany();
   await prisma.lore.deleteMany();
+  await prisma.event.deleteMany();
   await prisma.scene.deleteMany();
   await prisma.chapter.deleteMany();
   await prisma.act.deleteMany();

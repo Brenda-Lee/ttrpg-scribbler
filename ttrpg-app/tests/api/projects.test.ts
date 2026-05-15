@@ -30,6 +30,19 @@ describe("PATCH /api/projects/[projectId]", () => {
     expect(reloaded?.status).toBe("ARCHIVED");
   });
 
+  it("accepts TRASHED as a valid status (soft-delete)", async () => {
+    const user = await makeUser();
+    const project = await makeProject(user.id);
+
+    const res = await PATCH(
+      jsonRequest("PATCH", "http://t/", { status: "TRASHED" }),
+      params({ projectId: project.id }),
+    );
+    expect(res.status).toBe(200);
+    const reloaded = await prisma.project.findUnique({ where: { id: project.id } });
+    expect(reloaded?.status).toBe("TRASHED");
+  });
+
   it("rejects invalid status with 400", async () => {
     const user = await makeUser();
     const project = await makeProject(user.id);

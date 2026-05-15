@@ -12,7 +12,10 @@ import {
   FileDown,
   ChevronLeft,
   Settings,
+  Search,
+  LogOut,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -61,10 +64,32 @@ export function TopTabs({ projectId, projectTitle }: { projectId: string; projec
         })}
       </nav>
       <div className="ml-auto flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(
+              new KeyboardEvent("keydown", { key: "k", metaKey: true, ctrlKey: true }),
+            );
+          }}
+          className="hidden items-center gap-2 rounded-md border border-input bg-background/60 px-2 py-1 text-xs text-muted-foreground hover:bg-accent md:flex"
+          aria-label="Buscar"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span>Buscar…</span>
+          <kbd className="rounded border bg-muted px-1 text-[10px]">⌘K</kbd>
+        </button>
         <Button asChild variant="ghost" size="icon" aria-label="Configurações do projeto">
           <Link href={`${base}/settings`}>
             <Settings className="h-4 w-4" />
           </Link>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Sair"
+          onClick={() => signOut({ callbackUrl: "/login" })}
+        >
+          <LogOut className="h-4 w-4" />
         </Button>
         <ThemeToggle />
       </div>

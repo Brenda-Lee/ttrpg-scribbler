@@ -80,6 +80,24 @@ export function ProjectSettingsClient({
     }
   }
 
+  async function moveToTrash() {
+    setPending(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "TRASHED" }),
+      });
+      if (!res.ok) {
+        alert("Erro ao mover para lixeira.");
+        return;
+      }
+      router.push("/projects?status=trash");
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function hardDelete() {
     const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
     if (!res.ok) {
@@ -102,7 +120,11 @@ export function ProjectSettingsClient({
           <h1 className="text-2xl font-semibold tracking-tight">Configurações do projeto</h1>
           <div className="mt-1">
             <Badge variant={status === "ACTIVE" ? "secondary" : "outline"}>
-              {status === "ACTIVE" ? "Ativo" : "Arquivado"}
+              {status === "ACTIVE"
+                ? "Ativo"
+                : status === "ARCHIVED"
+                  ? "Arquivado"
+                  : "Excluído"}
             </Badge>
           </div>
         </div>
@@ -169,12 +191,18 @@ export function ProjectSettingsClient({
       <section className="space-y-2 rounded-lg border border-destructive/40 p-4">
         <h2 className="text-sm font-semibold text-destructive">Zona de perigo</h2>
         <p className="text-xs text-muted-foreground">
-          Exclui o projeto e tudo dentro dele (atos, capítulos, cenas, personagens, glossário,
-          locais e itens). Esta ação é irreversível.
+          A lixeira mantém o projeto recuperável até que você o exclua definitivamente. Excluir
+          definitivamente apaga tudo dentro dele (atos, capítulos, cenas, personagens, glossário,
+          locais, itens e lore) sem volta.
         </p>
-        <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
-          <Trash2 className="h-4 w-4" /> Excluir definitivamente
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={moveToTrash} disabled={pending || status === "TRASHED"}>
+            <Trash2 className="h-4 w-4" /> Mover para lixeira
+          </Button>
+          <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
+            <Trash2 className="h-4 w-4" /> Excluir definitivamente
+          </Button>
+        </div>
       </section>
 
       <ConfirmDeleteDialog

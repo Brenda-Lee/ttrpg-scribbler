@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { TopTabs } from "@/components/shell/TopTabs";
 import { LeftSidebar } from "@/components/shell/LeftSidebar";
 import { RightPanel } from "@/components/shell/RightPanel";
+import { CommandPalette } from "@/components/shell/CommandPalette";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,7 @@ export default async function ProjectLayout({
         <main className="relative flex-1 overflow-y-auto">{children}</main>
         <RightPanel />
       </div>
+      <CommandPalette projectId={project.id} />
     </div>
   );
 }

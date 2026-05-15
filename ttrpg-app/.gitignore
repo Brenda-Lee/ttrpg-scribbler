@@ -48,3 +48,7 @@ prisma/test.db-journal
 
 # user uploads
 /public/uploads/
+
+# Others
+/.claude/
+/sourceMaterial/

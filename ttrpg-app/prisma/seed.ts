@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+const DEFAULT_EMAIL = "owner@local";
+const DEFAULT_PASSWORD = "scribbler123";
 
 async function main() {
   const forceReset = process.argv.includes("--reset");
@@ -33,8 +36,9 @@ async function main() {
   await prisma.system.deleteMany();
   await prisma.user.deleteMany();
 
+  const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
   const owner = await prisma.user.create({
-    data: { name: "Mestre Local", email: "owner@local" },
+    data: { name: "Mestre Local", email: DEFAULT_EMAIL, password: passwordHash },
   });
 
   const [dnd, tormenta] = await Promise.all([
@@ -383,6 +387,7 @@ async function main() {
   void [porto, cripta, dnd];
 
   console.log("Seed concluído: projeto 'A Queda de Valoran' criado.");
+  console.log(`Login local: ${DEFAULT_EMAIL} / ${DEFAULT_PASSWORD}`);
 }
 
 main()

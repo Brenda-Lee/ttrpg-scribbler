@@ -9,13 +9,58 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?  @unique
-  createdAt DateTime @default(now())
+  id            String    @id @default(cuid())
+  name          String
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String? // hash bcrypt — null para usuários OAuth puros
+  createdAt     DateTime  @default(now())
 
   projects Project[] @relation("OwnerProjects")
   members  Member[]
+  accounts Account[]
+  sessions Session[]
+}
+
+// Modelos do NextAuth/Auth.js (Prisma adapter)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model System {
@@ -48,6 +93,7 @@ model Project {
   tags        Tag[]
   assets      Asset[]
   lore        Lore[]
+  events      Event[]
 
   @@index([ownerId])
 }
@@ -240,4 +286,20 @@ model Asset {
   charactersAvatar  Character[] @relation("CharacterAvatar")
 
   @@index([projectId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  dateLabel   String   @default("") // texto livre: "Inverno do ano 312", "Era pré-Cataclismo"
+  sortOrder   Int      @default(0)
+  color       String   @default("#94a3b8")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
 }

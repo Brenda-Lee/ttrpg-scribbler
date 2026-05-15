@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, Save, Trash2 } from "lucide-react";
 import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
+import { LocationMap, type MapData } from "./LocationMap";
 
 type Option = { id: string; name: string };
 
@@ -32,27 +33,37 @@ export function LocationDetailClient({
   childLocations: Option[];
 }) {
   const router = useRouter();
+  // Separa o `map` (UI dedicada) do resto do metaJson (textarea livre).
+  const parsedMeta = location.metaJson ? safeParseObject(location.metaJson) : {};
+  const { map: initialMap, ...restMeta } = parsedMeta;
   const [form, setForm] = useState({
     name: location.name,
     description: location.description ?? "",
     parentId: location.parentId ?? "",
-    metaJson: location.metaJson
-      ? JSON.stringify(JSON.parse(location.metaJson), null, 2)
-      : "",
+    metaJson:
+      Object.keys(restMeta).length > 0 ? JSON.stringify(restMeta, null, 2) : "",
   });
   const [pending, setPending] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   async function save() {
-    let meta: unknown = null;
+    let userMeta: Record<string, unknown> = {};
     if (form.metaJson.trim()) {
       try {
-        meta = JSON.parse(form.metaJson);
+        const parsed = JSON.parse(form.metaJson);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          userMeta = parsed;
+        } else {
+          alert("Metadados devem ser um objeto JSON.");
+          return;
+        }
       } catch {
         alert("Metadados não estão em JSON válido.");
         return;
       }
     }
+    // Preserva o `map` do LocationMap (que salva por conta própria).
+    const meta = initialMap ? { ...userMeta, map: initialMap } : userMeta;
     setPending(true);
     try {
       const res = await fetch(`/api/world/${projectId}/location/${location.id}`, {
@@ -62,7 +73,7 @@ export function LocationDetailClient({
           name: form.name,
           description: form.description || null,
           parentId: form.parentId || null,
-          metaJson: meta,
+          metaJson: Object.keys(meta).length > 0 ? meta : null,
         }),
       });
       if (!res.ok) {
@@ -130,8 +141,15 @@ export function LocationDetailClient({
         </select>
       </section>
 
+      <LocationMap
+        projectId={projectId}
+        locationId={location.id}
+        initialMap={(initialMap as MapData | undefined) ?? {}}
+        baseMeta={restMeta}
+      />
+
       <section className="space-y-2">
-        <Label htmlFor="meta">Metadados (JSON livre)</Label>
+        <Label htmlFor="meta">Metadados livres (JSON)</Label>
         <Textarea
           id="meta"
           rows={6}
@@ -141,7 +159,8 @@ export function LocationDetailClient({
           className="font-mono text-xs"
         />
         <p className="text-xs text-muted-foreground">
-          Sugestões: clima, tamanho, estação, prédios, árvores, pontos de referência.
+          Sugestões: clima, tamanho, estação, prédios, árvores, pontos de referência. O mapa
+          acima é salvo separadamente.
         </p>
       </section>
 
@@ -174,4 +193,16 @@ export function LocationDetailClient({
       />
     </div>
   );
+}
+
+function safeParseObject(raw: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    // ignore
+  }
+  return {};
 }

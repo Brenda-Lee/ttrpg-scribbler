@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, themeInitScript } from "@/components/theme/ThemeProvider";
+import { SessionProviderClient } from "@/components/auth/SessionProviderClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <SessionProviderClient>
+          <ThemeProvider>{children}</ThemeProvider>
+        </SessionProviderClient>
       </body>
     </html>
   );

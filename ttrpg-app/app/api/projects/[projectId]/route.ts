@@ -7,7 +7,7 @@ const PatchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   summary: z.string().nullable().optional(),
   systemId: z.string().nullable().optional(),
-  status: z.enum(["ACTIVE", "ARCHIVED"]).optional(),
+  status: z.enum(["ACTIVE", "ARCHIVED", "TRASHED"]).optional(),
 });
 
 async function loadOwned(projectId: string) {
