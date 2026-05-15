@@ -44,7 +44,7 @@ export default async function ProjectLayout({
           lore={project.lore.map((l) => ({ id: l.id, name: l.title, role: l.category }))}
         />
         <main className="relative flex-1 overflow-y-auto">{children}</main>
-        <RightPanel />
+        <RightPanel projectId={project.id} />
       </div>
       <CommandPalette projectId={project.id} />
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -87,7 +88,7 @@ export function TimelineClient({
         }),
       });
       if (!res.ok) {
-        alert("Erro ao salvar.");
+        toast.error("Erro ao salvar.");
         return;
       }
       setOpen(false);

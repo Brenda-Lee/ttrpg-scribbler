@@ -23,6 +23,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
+    --sidebar: 210 40% 98%;
     --radius: 0.5rem;
   }
 
@@ -46,6 +47,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    --sidebar: 222.2 47% 8%;
   }
 
   .sepia {
@@ -68,6 +70,7 @@
     --border: 30 20% 78%;
     --input: 30 20% 78%;
     --ring: 30 35% 30%;
+    --sidebar: 36 35% 88%;
   }
 }
 
@@ -91,10 +94,43 @@
   pointer-events: none;
   height: 0;
 }
+.ProseMirror .entity-mention,
 .ProseMirror .glossary-mention {
-  background-color: hsl(var(--accent));
-  border-bottom: 1px dotted hsl(var(--primary));
+  border-bottom: 1px dotted currentColor;
   border-radius: 0.25rem;
   padding: 0 0.15rem;
-  cursor: help;
+  cursor: pointer;
+  background-color: hsl(var(--accent));
+}
+.ProseMirror .entity-mention[data-mention-kind="character"] {
+  background-color: rgb(56 189 248 / 0.12);
+  color: rgb(2 132 199);
+}
+.ProseMirror .entity-mention[data-mention-kind="location"] {
+  background-color: rgb(52 211 153 / 0.12);
+  color: rgb(5 150 105);
+}
+.ProseMirror .entity-mention[data-mention-kind="item"] {
+  background-color: rgb(167 139 250 / 0.12);
+  color: rgb(124 58 237);
+}
+.ProseMirror .entity-mention[data-mention-kind="lore"] {
+  background-color: rgb(251 146 60 / 0.12);
+  color: rgb(217 119 6);
+}
+.ProseMirror .entity-mention[data-mention-kind="glossary"] {
+  background-color: hsl(var(--accent));
+  color: inherit;
+}
+.dark .ProseMirror .entity-mention[data-mention-kind="character"] {
+  color: rgb(125 211 252);
+}
+.dark .ProseMirror .entity-mention[data-mention-kind="location"] {
+  color: rgb(110 231 183);
+}
+.dark .ProseMirror .entity-mention[data-mention-kind="item"] {
+  color: rgb(196 181 253);
+}
+.dark .ProseMirror .entity-mention[data-mention-kind="lore"] {
+  color: rgb(253 186 116);
 }

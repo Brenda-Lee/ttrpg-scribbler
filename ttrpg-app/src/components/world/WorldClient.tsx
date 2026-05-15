@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -99,7 +100,7 @@ function Section({
         body: JSON.stringify({ kind, name: name.trim(), description: desc || null }),
       });
       if (!res.ok) {
-        alert("Não foi possível salvar.");
+        toast.error("Não foi possível salvar.");
         return;
       }
       setOpen(false);
@@ -231,7 +232,7 @@ function LoreSection({
         }),
       });
       if (!res.ok) {
-        alert("Não foi possível salvar.");
+        toast.error("Não foi possível salvar.");
         return;
       }
       setOpen(false);

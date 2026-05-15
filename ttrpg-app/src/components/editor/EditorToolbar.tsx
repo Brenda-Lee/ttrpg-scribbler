@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -16,12 +17,15 @@ import {
   Undo2,
   Redo2,
   Link as LinkIcon,
+  ImagePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MediaInsertDialog } from "./MediaInsertDialog";
 
-type Props = { editor: Editor | null };
+type Props = { editor: Editor | null; projectId?: string };
 
-export function EditorToolbar({ editor }: Props) {
+export function EditorToolbar({ editor, projectId }: Props) {
+  const [mediaOpen, setMediaOpen] = useState(false);
   if (!editor) return null;
 
   const btn = (active: boolean) =>
@@ -130,6 +134,28 @@ export function EditorToolbar({ editor }: Props) {
       >
         <LinkIcon className="h-4 w-4" />
       </Button>
+
+      {projectId ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 p-0"
+          onClick={() => setMediaOpen(true)}
+          aria-label="Inserir mídia"
+          title="Inserir imagem ou áudio"
+        >
+          <ImagePlus className="h-4 w-4" />
+        </Button>
+      ) : null}
+
+      {projectId ? (
+        <MediaInsertDialog
+          open={mediaOpen}
+          onOpenChange={setMediaOpen}
+          projectId={projectId}
+          editor={editor}
+        />
+      ) : null}
 
       <div className="ml-auto flex items-center gap-1">
         <Button

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -74,7 +75,7 @@ export function GlossaryClient({
       }),
     });
     if (!res.ok) {
-      alert("Não foi possível salvar o termo.");
+      toast.error("Não foi possível salvar o termo.");
       return;
     }
     setOpen(false);

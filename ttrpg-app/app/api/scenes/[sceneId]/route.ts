@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { maybeCreateAutoRevision } from "@/lib/revisions";
 
 const PatchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
@@ -39,6 +40,16 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ sceneId: stri
   if (parsed.data.wordCount !== undefined) data.wordCount = parsed.data.wordCount;
 
   await prisma.scene.update({ where: { id: sceneId }, data });
+
+  // Revisão automática: somente quando o conteúdo da cena foi alterado.
+  if (parsed.data.contentJson !== undefined) {
+    await maybeCreateAutoRevision({
+      sceneId,
+      contentJson: data.contentJson as string,
+      contentText: (data.contentText as string | undefined) ?? scene.contentText,
+      wordCount: (data.wordCount as number | undefined) ?? scene.wordCount,
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

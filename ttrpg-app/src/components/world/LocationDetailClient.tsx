@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ChevronLeft, Save, Trash2 } from "lucide-react";
 import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
-import { LocationMap, type MapData } from "./LocationMap";
+import { LocationMap } from "./LocationMap";
+import type { MapData } from "@/types/locationMap";
 
 type Option = { id: string; name: string };
 
@@ -21,16 +23,24 @@ type Location = {
   metaJson: string | null;
 };
 
+type Entities = {
+  characters: Option[];
+  locations: Option[];
+  items: Option[];
+};
+
 export function LocationDetailClient({
   projectId,
   location,
   parentOptions,
   childLocations,
+  entities,
 }: {
   projectId: string;
   location: Location;
   parentOptions: Option[];
   childLocations: Option[];
+  entities: Entities;
 }) {
   const router = useRouter();
   // Separa o `map` (UI dedicada) do resto do metaJson (textarea livre).
@@ -54,11 +64,11 @@ export function LocationDetailClient({
         if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
           userMeta = parsed;
         } else {
-          alert("Metadados devem ser um objeto JSON.");
+          toast.error("Metadados devem ser um objeto JSON.");
           return;
         }
       } catch {
-        alert("Metadados não estão em JSON válido.");
+        toast.error("Metadados não estão em JSON válido.");
         return;
       }
     }
@@ -77,7 +87,7 @@ export function LocationDetailClient({
         }),
       });
       if (!res.ok) {
-        alert("Erro ao salvar.");
+        toast.error("Erro ao salvar.");
         return;
       }
       router.refresh();
@@ -146,6 +156,7 @@ export function LocationDetailClient({
         locationId={location.id}
         initialMap={(initialMap as MapData | undefined) ?? {}}
         baseMeta={restMeta}
+        entities={entities}
       />
 
       <section className="space-y-2">

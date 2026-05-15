@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -36,7 +37,7 @@ export function ActHeader({
         body: JSON.stringify({ title: v }),
       });
       if (!res.ok) {
-        alert("Erro ao renomear.");
+        toast.error("Erro ao renomear.");
         setValue(title);
         return;
       }

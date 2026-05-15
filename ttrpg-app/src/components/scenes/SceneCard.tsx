@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,7 +45,7 @@ export function SceneCard({ projectId, sceneId, title, snippet, status, wordCoun
       body: JSON.stringify({ title: v }),
     });
     if (!res.ok) {
-      alert("Erro ao renomear.");
+      toast.error("Erro ao renomear.");
       setValue(title);
     } else {
       setEditing(false);

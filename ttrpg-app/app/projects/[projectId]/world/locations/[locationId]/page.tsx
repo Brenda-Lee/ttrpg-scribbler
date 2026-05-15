@@ -17,7 +17,7 @@ export default async function LocationDetailPage({
   });
   if (!location) notFound();
 
-  const [allLocations, children] = await Promise.all([
+  const [allLocations, children, characters, items] = await Promise.all([
     prisma.location.findMany({
       where: { projectId },
       select: { id: true, name: true },
@@ -25,6 +25,16 @@ export default async function LocationDetailPage({
     }),
     prisma.location.findMany({
       where: { projectId, parentId: locationId },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.character.findMany({
+      where: { projectId },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.item.findMany({
+      where: { projectId },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
@@ -42,6 +52,11 @@ export default async function LocationDetailPage({
       }}
       parentOptions={allLocations}
       childLocations={children}
+      entities={{
+        characters,
+        locations: allLocations.filter((l) => l.id !== locationId),
+        items,
+      }}
     />
   );
 }

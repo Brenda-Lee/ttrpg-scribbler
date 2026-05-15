@@ -4,6 +4,7 @@ import type { JSONContent } from "@tiptap/react";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { TiptapEditor } from "@/components/editor/TiptapEditor";
+import { LiveWordCount } from "@/components/editor/LiveWordCount";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 
@@ -54,7 +55,7 @@ export default async function ScenePage({
             </p>
           </div>
         </div>
-        <span className="text-xs text-muted-foreground">{scene.wordCount} palavras</span>
+        <LiveWordCount initial={scene.wordCount} />
       </div>
       <div className="mx-auto w-full max-w-3xl flex-1">
         <TiptapEditor

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -66,7 +67,7 @@ export function CharactersClient({
       }),
     });
     if (!res.ok) {
-      alert("Não foi possível salvar o personagem.");
+      toast.error("Não foi possível salvar o personagem.");
       return;
     }
     setOpen(false);

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -39,7 +40,7 @@ export function ItemDetailClient({
       try {
         meta = JSON.parse(form.metaJson);
       } catch {
-        alert("Metadados não estão em JSON válido.");
+        toast.error("Metadados não estão em JSON válido.");
         return;
       }
     }
@@ -55,7 +56,7 @@ export function ItemDetailClient({
         }),
       });
       if (!res.ok) {
-        alert("Erro ao salvar.");
+        toast.error("Erro ao salvar.");
         return;
       }
       router.refresh();

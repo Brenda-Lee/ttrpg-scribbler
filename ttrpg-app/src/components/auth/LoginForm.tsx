@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Sparkles, LogIn } from "lucide-react";
 
-export function LoginForm({ from, error: initialError }: { from?: string; error?: string }) {
+export function LoginForm({
+  from,
+  error: initialError,
+  stale,
+}: {
+  from?: string;
+  error?: string;
+  stale?: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -19,11 +27,24 @@ export function LoginForm({ from, error: initialError }: { from?: string; error?
   const [error, setError] = useState<string | null>(
     initialError ? "Credenciais inválidas." : null,
   );
+  const [notice, setNotice] = useState<string | null>(
+    stale ? "Sua sessão expirou (o usuário não existe mais). Entre novamente." : null,
+  );
+
+  // Quando a página foi aberta com ?stale=1, limpa o cookie da sessão antiga
+  // do NextAuth no cliente sem redirect (já estamos na tela de login).
+  useEffect(() => {
+    if (!stale) return;
+    signOut({ redirect: false }).catch(() => {
+      // silencioso — o objetivo é apenas limpar o cookie inválido
+    });
+  }, [stale]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
     setError(null);
+    setNotice(null);
     const res = await signIn("credentials", {
       email,
       password,
@@ -73,6 +94,11 @@ export function LoginForm({ from, error: initialError }: { from?: string; error?
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          {notice ? (
+            <p className="rounded-md bg-amber-100 px-3 py-2 text-xs text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
+              {notice}
+            </p>
+          ) : null}
           {error ? (
             <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
               {error}

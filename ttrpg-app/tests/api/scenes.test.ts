@@ -102,6 +102,45 @@ describe("PATCH /api/scenes/[sceneId]", () => {
   });
 });
 
+describe("PATCH /api/scenes/[sceneId] autosave revisions", () => {
+  it("cria uma revisão AUTO ao alterar contentJson pela primeira vez", async () => {
+    const user = await makeUser();
+    const project = await makeProject(user.id);
+    const act = await makeAct(project.id);
+    const chapter = await makeChapter(act.id);
+    const scene = await makeScene(chapter.id);
+
+    const res = await PATCH(
+      jsonRequest("PATCH", "http://t/", {
+        contentJson: { type: "doc" },
+        contentText: "primeira edição",
+        wordCount: 2,
+      }),
+      params({ sceneId: scene.id }),
+    );
+    expect(res.status).toBe(200);
+    const revs = await prisma.sceneRevision.findMany({ where: { sceneId: scene.id } });
+    expect(revs).toHaveLength(1);
+    expect(revs[0]!.kind).toBe("AUTO");
+  });
+
+  it("não cria revisão extra para PATCH sem contentJson (ex: só title)", async () => {
+    const user = await makeUser();
+    const project = await makeProject(user.id);
+    const act = await makeAct(project.id);
+    const chapter = await makeChapter(act.id);
+    const scene = await makeScene(chapter.id);
+
+    const res = await PATCH(
+      jsonRequest("PATCH", "http://t/", { title: "Outro nome" }),
+      params({ sceneId: scene.id }),
+    );
+    expect(res.status).toBe(200);
+    const revs = await prisma.sceneRevision.findMany({ where: { sceneId: scene.id } });
+    expect(revs).toHaveLength(0);
+  });
+});
+
 describe("DELETE /api/scenes/[sceneId]", () => {
   it("removes only the scene, not the chapter", async () => {
     const user = await makeUser();

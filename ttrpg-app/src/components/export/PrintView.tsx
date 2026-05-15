@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ExportKind, WritingStyle } from "@/lib/export/style";
 import { WRITING_STYLE_LABEL } from "@/lib/export/style";
 
@@ -23,11 +24,22 @@ export function PrintView({
   glossary: Array<{ term: string; definition: string }>;
   lore: Array<{ title: string; category: string; body: string }>;
 }) {
+  const searchParams = useSearchParams();
+  const auto = searchParams.get("auto");
+  const skipAutoPrint = auto === "0";
+
   useEffect(() => {
+    if (skipAutoPrint) {
+      // Modo headless/puppeteer: marca o documento como pronto e pula o print do navegador.
+      const t = setTimeout(() => {
+        document.documentElement.setAttribute("data-print-ready", "1");
+      }, 250);
+      return () => clearTimeout(t);
+    }
     // Aguarda o layout pintar antes de abrir o diálogo de impressão.
     const t = setTimeout(() => window.print(), 350);
     return () => clearTimeout(t);
-  }, []);
+  }, [skipAutoPrint]);
 
   return (
     <>
@@ -179,6 +191,19 @@ function buildPrintCss(style: WritingStyle): string {
   .print-scene-content code { font-family: 'Courier New', monospace; background: #f3f3f3; padding: 0 0.2em; }
   .print-scene-content a { color: #1a4d8f; text-decoration: underline; }
   .print-scene-content .mention { background: #fff2c0; border-radius: 3px; padding: 0 0.15em; }
+  .print-scene-content img, .print-scene-content .tiptap-image { max-width: 100%; height: auto; margin: 0.6em 0; }
+  /* Áudio não pode ser embutido em PDF — substitui por linha textual. */
+  .print-scene-content [data-audio] audio { display: none; }
+  .print-scene-content [data-audio]::before {
+    content: "🎵 áudio: " attr(data-audio-title);
+    display: inline-block;
+    color: #555;
+    font-style: italic;
+    padding: 0.2em 0.4em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f7f7f7;
+  }
   .print-cover { display: flex; align-items: center; justify-content: center; min-height: 90vh; text-align: center; }
   .print-cover-inner h1 { font-size: 36pt; margin: 0 0 0.5em; }
   .print-cover-system { font-size: 14pt; color: #666; margin: 0 0 1em; }

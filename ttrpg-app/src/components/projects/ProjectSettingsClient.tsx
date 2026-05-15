@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -51,7 +52,7 @@ export function ProjectSettingsClient({
         }),
       });
       if (!res.ok) {
-        alert("Erro ao salvar.");
+        toast.error("Erro ao salvar.");
         return;
       }
       router.refresh();
@@ -70,7 +71,7 @@ export function ProjectSettingsClient({
         body: JSON.stringify({ status: next }),
       });
       if (!res.ok) {
-        alert("Erro ao alterar status.");
+        toast.error("Erro ao alterar status.");
         return;
       }
       setStatus(next);
@@ -89,7 +90,7 @@ export function ProjectSettingsClient({
         body: JSON.stringify({ status: "TRASHED" }),
       });
       if (!res.ok) {
-        alert("Erro ao mover para lixeira.");
+        toast.error("Erro ao mover para lixeira.");
         return;
       }
       router.push("/projects?status=trash");
@@ -101,7 +102,7 @@ export function ProjectSettingsClient({
   async function hardDelete() {
     const res = await fetch(`/api/projects/${project.id}`, { method: "DELETE" });
     if (!res.ok) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
       return;
     }
     router.push("/projects");

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +28,7 @@ export function ChapterSummary({
         body: JSON.stringify({ summary: value.trim() || null }),
       });
       if (!res.ok) {
-        alert("Erro ao salvar sumário.");
+        toast.error("Erro ao salvar sumário.");
         return;
       }
       setEditing(false);

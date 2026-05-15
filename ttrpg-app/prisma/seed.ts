@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
-const DEFAULT_EMAIL = "owner@local";
+const DEFAULT_EMAIL = "owner@local.com";
 const DEFAULT_PASSWORD = "scribbler123";
 
 async function main() {

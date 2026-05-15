@@ -6,7 +6,28 @@ import Typography from "@tiptap/extension-typography";
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import Mention from "@tiptap/extension-mention";
+import Image from "@tiptap/extension-image";
 import type { JSONContent } from "@tiptap/core";
+import { Audio } from "@/lib/tiptap/audioExtension";
+
+/**
+ * Mention configurado igual ao editor: aceita atributo `kind` para distinguir
+ * a entidade vinculada (character / location / item / lore / glossary).
+ */
+const ExportMention = Mention.extend({
+  addAttributes() {
+    const parent = this.parent?.() ?? {};
+    return {
+      ...parent,
+      kind: {
+        default: "glossary",
+        parseHTML: (el) => el.getAttribute("data-mention-kind") ?? "glossary",
+        renderHTML: (attrs) =>
+          attrs.kind ? { "data-mention-kind": attrs.kind as string } : {},
+      },
+    };
+  },
+});
 
 /**
  * Mesma lista de extensões do editor (TiptapEditor.tsx), porém sem
@@ -20,7 +41,9 @@ const extensions = [
   Typography,
   TaskList,
   TaskItem.configure({ nested: true }),
-  Mention,
+  Image,
+  Audio,
+  ExportMention,
 ];
 
 export function tiptapJsonToHtml(json: JSONContent | null): string {

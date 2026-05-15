@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronLeft, Save, Trash2 } from "lucide-react";
 import { initials } from "@/lib/utils";
+import { BodyMap } from "./BodyMap";
 
 type Character = {
   id: string;
@@ -49,7 +51,7 @@ export function CharacterDetailClient({
     try {
       attrs = JSON.parse(attrsText || "{}");
     } catch {
-      alert("Atributos não estão em JSON válido.");
+      toast.error("Atributos não estão em JSON válido.");
       return;
     }
     const res = await fetch(`/api/characters/${projectId}/${character.id}`, {
@@ -58,7 +60,7 @@ export function CharacterDetailClient({
       body: JSON.stringify({ name, role, bio: bio || null, attributesJson: attrs }),
     });
     if (!res.ok) {
-      alert("Não foi possível salvar.");
+      toast.error("Não foi possível salvar.");
       return;
     }
     startTransition(() => router.refresh());
@@ -134,6 +136,8 @@ export function CharacterDetailClient({
           afiliação, etc).
         </p>
       </section>
+
+      <BodyMap projectId={projectId} characterId={character.id} />
     </div>
   );
 }

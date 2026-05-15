@@ -170,9 +170,25 @@ model Scene {
   status      String   @default("DRAFT") // DRAFT | REVISING | DONE
   updatedAt   DateTime @updatedAt
 
-  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapter   Chapter         @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  revisions SceneRevision[]
 
   @@index([chapterId, order])
+}
+
+model SceneRevision {
+  id          String   @id @default(cuid())
+  sceneId     String
+  contentJson String   // Tiptap JSONContent serializado (mesmo formato de Scene.contentJson)
+  contentText String   @default("")
+  wordCount   Int      @default(0)
+  kind        String   @default("AUTO") // AUTO | MANUAL
+  label       String?
+  createdAt   DateTime @default(now())
+
+  scene Scene @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+
+  @@index([sceneId, createdAt])
 }
 
 model Character {
@@ -184,12 +200,27 @@ model Character {
   attributesJson  String? // JSON serializado livre
   avatarAssetId   String?
 
-  project       Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  avatarAsset   Asset?             @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
-  glossaryLinks GlossaryTerm[]     @relation("TermCharacter")
+  project       Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  avatarAsset   Asset?               @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
+  glossaryLinks GlossaryTerm[]       @relation("TermCharacter")
   chapters      ChapterCharacter[]
+  conditions    CharacterCondition[]
 
   @@index([projectId])
+}
+
+model CharacterCondition {
+  id          String   @id @default(cuid())
+  characterId String
+  region      String   // HEAD | NECK | TORSO_FRONT | TORSO_BACK | LEFT_ARM | RIGHT_ARM | LEFT_HAND | RIGHT_HAND | LEFT_LEG | RIGHT_LEG | LEFT_FOOT | RIGHT_FOOT
+  severity    String   @default("LIGHT") // LIGHT | MODERATE | SEVERE | CRITICAL
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
 }
 
 model Location {

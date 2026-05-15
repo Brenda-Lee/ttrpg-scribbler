@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -50,7 +51,7 @@ export function ChapterTagsField({
         body: JSON.stringify(opts),
       });
       if (!res.ok) {
-        alert("Erro ao atualizar.");
+        toast.error("Erro ao atualizar.");
         return;
       }
       startTransition(() => router.refresh());

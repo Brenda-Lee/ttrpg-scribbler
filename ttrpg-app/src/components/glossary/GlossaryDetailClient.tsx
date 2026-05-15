@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -75,7 +76,7 @@ export function GlossaryDetailClient({
       try {
         conj = JSON.parse(form.conjugationJson);
       } catch {
-        alert("Conjugação não está em JSON válido.");
+        toast.error("Conjugação não está em JSON válido.");
         return;
       }
     }
@@ -99,7 +100,7 @@ export function GlossaryDetailClient({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => null);
-        alert(err?.error === "duplicate_slug" ? "Já existe um termo com esse nome." : "Erro ao salvar.");
+        toast.error(err?.error === "duplicate_slug" ? "Já existe um termo com esse nome." : "Erro ao salvar.");
         return;
       }
       router.refresh();

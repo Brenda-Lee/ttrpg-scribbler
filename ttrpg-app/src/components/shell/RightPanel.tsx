@@ -6,9 +6,17 @@ import { Button } from "@/components/ui/button";
 import { PanelRight, X, CircleDashed, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RevisionPanel } from "@/components/editor/RevisionPanel";
+import { RevisionHistoryPanel } from "@/components/editor/RevisionHistoryPanel";
+import { EntityPreviewPanel } from "@/components/editor/EntityPreviewPanel";
 import { checkText } from "@/lib/grammar/check";
 
-export function RightPanel({ children }: { children?: React.ReactNode }) {
+export function RightPanel({
+  children,
+  projectId,
+}: {
+  children?: React.ReactNode;
+  projectId?: string;
+}) {
   const open = useWorkspace((s) => s.rightPanelOpen);
   const toggle = useWorkspace((s) => s.toggleRightPanel);
   const saveStatus = useWorkspace((s) => s.saveStatus);
@@ -59,7 +67,9 @@ export function RightPanel({ children }: { children?: React.ReactNode }) {
           {children ?? (
             <p className="text-muted-foreground">Selecione uma cena ou entidade para ver detalhes aqui.</p>
           )}
+          {projectId ? <EntityPreviewPanel projectId={projectId} /> : null}
           <RevisionPanel />
+          <RevisionHistoryPanel />
         </div>
       </aside>
     </>

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { FileDown } from "lucide-react";
+import { FileDown, Loader2 } from "lucide-react";
 import {
   WRITING_STYLES,
   WRITING_STYLE_LABEL,
@@ -29,6 +30,7 @@ export function ExportPicker({
   const [kind, setKind] = useState<ExportKind>("project");
   const [targetId, setTargetId] = useState<string>("");
   const [style, setStyle] = useState<WritingStyle>("FORMAL");
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   // O alvo válido para o tipo selecionado
   const targetOptions =
@@ -56,6 +58,45 @@ export function ExportPicker({
     ? `/projects/${projectId}/export/print?kind=${kind}&id=${resolvedTargetId}&style=${style}`
     : "";
 
+  async function exportPdf() {
+    if (!resolvedTargetId) return;
+    setGeneratingPdf(true);
+    const toastId = toast.loading("Gerando PDF…");
+    try {
+      const res = await fetch(`/api/export/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId, kind, id: resolvedTargetId, style }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        if (err?.error === "pdf_unavailable") {
+          toast.error("Geração de PDF indisponível neste ambiente.", { id: toastId });
+        } else {
+          toast.error("Falha ao gerar PDF.", { id: toastId });
+        }
+        return;
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("content-disposition") ?? "";
+      const fileName =
+        /filename="([^"]+)"/.exec(disposition)?.[1] ?? `export-${kind}-${style.toLowerCase()}.pdf`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("PDF gerado.", { id: toastId });
+    } catch {
+      toast.error("Erro inesperado ao gerar PDF.", { id: toastId });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-8 py-10">
       <header>
@@ -64,8 +105,9 @@ export function ExportPicker({
           Exportar
         </h1>
         <p className="text-sm text-muted-foreground">
-          Gera um PDF via di&aacute;logo de impress&atilde;o do navegador. Escolha &quot;Salvar
-          como PDF&quot; no destino.
+          Gere um PDF direto pelo bot&atilde;o &quot;Exportar PDF&quot; ou use
+          &quot;Pr&eacute;-visualizar&quot; para abrir uma aba com o di&aacute;logo de
+          impress&atilde;o do navegador.
         </p>
       </header>
 
@@ -150,11 +192,19 @@ export function ExportPicker({
           <StyleHint style={style} />
         </section>
 
-        <footer className="flex justify-end pt-2">
-          <Button asChild disabled={!printUrl}>
+        <footer className="flex flex-wrap justify-end gap-2 pt-2">
+          <Button asChild variant="outline" disabled={!printUrl}>
             <Link href={printUrl} target="_blank" rel="noopener noreferrer">
-              Visualizar e exportar
+              Pré-visualizar
             </Link>
+          </Button>
+          <Button onClick={exportPdf} disabled={!resolvedTargetId || generatingPdf}>
+            {generatingPdf ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileDown className="h-4 w-4" />
+            )}
+            Exportar PDF
           </Button>
         </footer>
       </Card>

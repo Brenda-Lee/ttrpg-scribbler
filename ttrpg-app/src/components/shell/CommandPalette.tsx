@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   User,
@@ -163,6 +163,7 @@ export function CommandPalette({ projectId }: { projectId: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-xl gap-0 p-0">
+        <DialogTitle className="sr-only">Buscar no projeto</DialogTitle>
         <div className="flex items-center gap-2 border-b px-3 py-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input

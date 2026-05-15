@@ -18,6 +18,7 @@ import {
 import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { SaveStatusIndicator } from "@/components/shell/SaveStatusIndicator";
 
 type Tab = { href: string; label: string; icon: React.ComponentType<{ className?: string }> };
 
@@ -63,7 +64,8 @@ export function TopTabs({ projectId, projectTitle }: { projectId: string; projec
           );
         })}
       </nav>
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-2">
+        <SaveStatusIndicator />
         <button
           type="button"
           onClick={() => {
