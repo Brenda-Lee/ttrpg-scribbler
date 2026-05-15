@@ -11,6 +11,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "tsx prisma/seed.ts --reset",
     "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -33,6 +36,7 @@
     "@tiptap/extension-task-list": "^3.23.4",
     "@tiptap/extension-typography": "^3.23.4",
     "@tiptap/extension-underline": "^3.23.4",
+    "@tiptap/html": "^3.23.4",
     "@tiptap/pm": "^3.23.4",
     "@tiptap/react": "^3.23.4",
     "@tiptap/starter-kit": "^3.23.4",
@@ -56,10 +60,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.6"
   }
 }

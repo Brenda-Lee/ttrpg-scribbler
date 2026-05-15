@@ -26,6 +26,11 @@ export default async function ScenePage({
   });
   if (!scene) notFound();
 
+  const glossary = await prisma.glossaryTerm.findMany({
+    where: { projectId },
+    select: { term: true, caseSensitive: true },
+  });
+
   let initial: JSONContent | null = null;
   try {
     initial = scene.contentJson ? (JSON.parse(scene.contentJson) as JSONContent) : null;
@@ -56,6 +61,7 @@ export default async function ScenePage({
           sceneId={scene.id}
           projectId={projectId}
           initialContent={initial}
+          glossaryWords={glossary}
         />
       </div>
     </div>

@@ -11,17 +11,28 @@ import TaskItem from "@tiptap/extension-task-item";
 import { useEffect, useRef } from "react";
 import { EditorToolbar } from "./EditorToolbar";
 import { createGlossaryMention } from "@/lib/tiptap/glossaryMention";
+import { useWorkspace } from "@/stores/workspace";
+import type { GlossaryWord } from "@/lib/grammar/rules";
 
 type Props = {
   sceneId: string;
   projectId: string;
   initialContent: JSONContent | null;
   placeholder?: string;
+  glossaryWords?: GlossaryWord[];
 };
 
-export function TiptapEditor({ sceneId, projectId, initialContent, placeholder }: Props) {
+export function TiptapEditor({
+  sceneId,
+  projectId,
+  initialContent,
+  placeholder,
+  glossaryWords,
+}: Props) {
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>(JSON.stringify(initialContent ?? {}));
+  const setCurrentText = useWorkspace((s) => s.setCurrentText);
+  const setGlossaryWords = useWorkspace((s) => s.setGlossaryWords);
 
   const editor = useEditor({
     extensions: [
@@ -40,6 +51,8 @@ export function TiptapEditor({ sceneId, projectId, initialContent, placeholder }
       attributes: {
         class:
           "prose prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[60vh] px-8 py-10",
+        spellcheck: "true",
+        lang: "pt-BR",
       },
     },
     onUpdate: ({ editor }) => {
@@ -68,11 +81,32 @@ export function TiptapEditor({ sceneId, projectId, initialContent, placeholder }
     },
   });
 
+  // Listener próprio para a revisão: dispara em cada update do editor.
+  // Usar editor.on('update', ...) evita closures stale do callback onUpdate
+  // do useEditor e garante atualização imediata do painel.
+  useEffect(() => {
+    if (!editor) return;
+    const push = () => setCurrentText(editor.getText());
+    push(); // estado inicial
+    editor.on("update", push);
+    return () => {
+      editor.off("update", push);
+    };
+  }, [editor, setCurrentText]);
+
+  // Sincroniza o glossário do projeto no store de workspace para o painel de revisão.
+  useEffect(() => {
+    setGlossaryWords(glossaryWords ?? []);
+  }, [glossaryWords, setGlossaryWords]);
+
+  // Limpeza no unmount do editor (mudança de cena / saída da página).
   useEffect(() => {
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
+      setCurrentText(null);
+      setGlossaryWords([]);
     };
-  }, []);
+  }, [setCurrentText, setGlossaryWords]);
 
   return (
     <div className="flex flex-col h-full">
