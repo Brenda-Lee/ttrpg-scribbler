@@ -18,9 +18,13 @@ export default async function WorldPage({
   });
   if (!project) notFound();
 
-  const [locations, items] = await Promise.all([
+  const [locations, items, lore] = await Promise.all([
     prisma.location.findMany({ where: { projectId }, orderBy: { name: "asc" } }),
     prisma.item.findMany({ where: { projectId }, orderBy: { name: "asc" } }),
+    prisma.lore.findMany({
+      where: { projectId },
+      orderBy: [{ category: "asc" }, { title: "asc" }],
+    }),
   ]);
 
   return (
@@ -28,6 +32,12 @@ export default async function WorldPage({
       projectId={projectId}
       locations={locations.map((l) => ({ id: l.id, name: l.name, description: l.description }))}
       items={items.map((i) => ({ id: i.id, name: i.name, description: i.description }))}
+      lore={lore.map((l) => ({
+        id: l.id,
+        title: l.title,
+        category: l.category,
+        excerpt: l.excerpt,
+      }))}
     />
   );
 }

@@ -11,7 +11,10 @@ import {
   Clock,
   FileDown,
   ChevronLeft,
+  Settings,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 type Tab = { href: string; label: string; icon: React.ComponentType<{ className?: string }> };
 
@@ -57,6 +60,14 @@ export function TopTabs({ projectId, projectTitle }: { projectId: string; projec
           );
         })}
       </nav>
+      <div className="ml-auto flex items-center gap-1">
+        <Button asChild variant="ghost" size="icon" aria-label="Configurações do projeto">
+          <Link href={`${base}/settings`}>
+            <Settings className="h-4 w-4" />
+          </Link>
+        </Button>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

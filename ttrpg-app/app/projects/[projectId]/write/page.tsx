@@ -3,6 +3,10 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { SceneCard } from "@/components/scenes/SceneCard";
 import { StructureActions } from "@/components/scenes/StructureActions";
+import { ActHeader } from "@/components/scenes/ActHeader";
+import { ChapterHeader } from "@/components/scenes/ChapterHeader";
+import { ChapterSummary } from "@/components/scenes/ChapterSummary";
+import { ChapterTagsField } from "@/components/scenes/ChapterTagsField";
 import { createAct, createChapter, createScene } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -17,12 +21,24 @@ export default async function WritePage({
   const project = await prisma.project.findFirst({
     where: { id: projectId, ownerId: user.id },
     include: {
+      characters: {
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
+      },
+      tags: {
+        orderBy: { name: "asc" },
+        select: { id: true, name: true, color: true },
+      },
       acts: {
         orderBy: { order: "asc" },
         include: {
           chapters: {
             orderBy: { order: "asc" },
-            include: { scenes: { orderBy: { order: "asc" } } },
+            include: {
+              scenes: { orderBy: { order: "asc" } },
+              characters: { select: { characterId: true } },
+              tags: { include: { tag: { select: { name: true } } } },
+            },
           },
         },
       },
@@ -48,15 +64,18 @@ export default async function WritePage({
 
       {project.acts.map((act) => (
         <section key={act.id} className="space-y-3">
-          <header className="flex items-baseline justify-between">
-            <h2 className="text-xl font-semibold tracking-tight">{act.title}</h2>
-            <StructureActions
-              action={createChapter}
-              hidden={{ projectId: project.id, actId: act.id }}
-              placeholder="Título do Capítulo"
-              label="Adicionar Capítulo"
-            />
-          </header>
+          <ActHeader
+            actId={act.id}
+            title={act.title}
+            rightSlot={
+              <StructureActions
+                action={createChapter}
+                hidden={{ projectId: project.id, actId: act.id }}
+                placeholder="Título do Capítulo"
+                label="Adicionar Capítulo"
+              />
+            }
+          />
 
           {act.chapters.length === 0 ? (
             <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
@@ -65,13 +84,16 @@ export default async function WritePage({
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {act.chapters.map((ch) => (
-                <div key={ch.id} className="space-y-2 rounded-lg border bg-card/40 p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold">{ch.title}</h3>
-                  </div>
-                  {ch.summary ? (
-                    <p className="text-xs text-muted-foreground">{ch.summary}</p>
-                  ) : null}
+                <div key={ch.id} className="space-y-3 rounded-lg border bg-card/40 p-3">
+                  <ChapterHeader chapterId={ch.id} title={ch.title} />
+                  <ChapterSummary chapterId={ch.id} summary={ch.summary} />
+                  <ChapterTagsField
+                    chapterId={ch.id}
+                    allCharacters={project.characters}
+                    selectedCharacterIds={ch.characters.map((cc) => cc.characterId)}
+                    allTags={project.tags}
+                    selectedTagNames={ch.tags.map((ct) => ct.tag.name)}
+                  />
                   <div className="space-y-2">
                     {ch.scenes.map((s) => (
                       <SceneCard

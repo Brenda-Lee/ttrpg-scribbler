@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { initials } from "@/lib/utils";
+import { EntityKebabMenu } from "@/components/common/EntityKebabMenu";
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 
 type Character = {
   id: string;
@@ -45,7 +47,13 @@ export function CharactersClient({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Character | null>(null);
   const [form, setForm] = useState({ name: "", role: "NPC", bio: "" });
+
+  async function remove(id: string) {
+    await fetch(`/api/characters/${projectId}/${id}`, { method: "DELETE" });
+    startTransition(() => router.refresh());
+  }
 
   async function submit() {
     const res = await fetch(`/api/characters/${projectId}`, {
@@ -132,27 +140,49 @@ export function CharactersClient({
           </div>
         ) : (
           initialCharacters.map((c) => (
-            <Link key={c.id} href={`/projects/${projectId}/characters/${c.id}`}>
-              <Card className="flex h-full items-start gap-3 p-3 transition-colors hover:border-primary/40 hover:bg-accent/30">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback>{initials(c.name)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="truncate font-medium">{c.name}</h3>
+            <Card
+              key={c.id}
+              className="group relative flex h-full items-start gap-3 p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
+            >
+              <Link
+                href={`/projects/${projectId}/characters/${c.id}`}
+                className="absolute inset-0 z-0"
+                aria-label={`Abrir ${c.name}`}
+              />
+              <Avatar className="relative z-10 h-12 w-12">
+                <AvatarFallback>{initials(c.name)}</AvatarFallback>
+              </Avatar>
+              <div className="relative z-10 min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="truncate font-medium">{c.name}</h3>
+                  <div className="flex items-center gap-1">
                     <Badge variant="outline" className="text-[10px]">
                       {ROLE_LABEL[c.role] ?? c.role}
                     </Badge>
+                    <EntityKebabMenu
+                      stopPropagation
+                      onDelete={() => setDeleteTarget(c)}
+                    />
                   </div>
-                  {c.bio ? (
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{c.bio}</p>
-                  ) : null}
                 </div>
-              </Card>
-            </Link>
+                {c.bio ? (
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{c.bio}</p>
+                ) : null}
+              </div>
+            </Card>
           ))
         )}
       </div>
+
+      <ConfirmDeleteDialog
+        open={deleteTarget !== null}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title={deleteTarget ? `Excluir "${deleteTarget.name}"?` : ""}
+        description="Esta ação não pode ser desfeita."
+        onConfirm={async () => {
+          if (deleteTarget) await remove(deleteTarget.id);
+        }}
+      />
     </div>
   );
 }

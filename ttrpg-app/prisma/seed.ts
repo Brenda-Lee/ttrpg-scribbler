@@ -3,9 +3,24 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
+  const forceReset = process.argv.includes("--reset");
+
+  // Seguro por padrão: só semeia se o banco está vazio. Use `npm run db:reset`
+  // para forçar uma limpeza + reinserção do projeto demo.
+  const existingProjects = await prisma.project.count();
+  if (existingProjects > 0 && !forceReset) {
+    console.log(
+      `Seed pulado: ${existingProjects} projeto(s) já existem. Use \`npm run db:reset\` para limpar e re-semear.`,
+    );
+    return;
+  }
+
   // Limpa em ordem para respeitar FKs
+  await prisma.chapterTag.deleteMany();
+  await prisma.chapterCharacter.deleteMany();
   await prisma.glossaryTerm.deleteMany();
   await prisma.tag.deleteMany();
+  await prisma.lore.deleteMany();
   await prisma.scene.deleteMany();
   await prisma.chapter.deleteMany();
   await prisma.act.deleteMany();
@@ -278,8 +293,94 @@ async function main() {
     }),
   ]);
 
+  // Lore — entradas culturais/sociais
+  await Promise.all([
+    prisma.lore.create({
+      data: {
+        projectId: project.id,
+        title: "Culto do Véu",
+        category: "RELIGION",
+        excerpt:
+          "Seita clandestina que adora a Filha Velada — uma deidade do ocultamento e do segredo.",
+        body:
+          "O Culto do Véu opera em camadas concêntricas de iniciação. Os neófitos vestem tecido cru; os iniciados, linho tingido; os Olhos-do-Véu, gaze prateada que cobre o rosto inteiro. Acreditam que cada mentira bem-guardada fortalece a Filha Velada — daí a obsessão por contratos selados e juramentos.",
+      },
+    }),
+    prisma.lore.create({
+      data: {
+        projectId: project.id,
+        title: "Festival das Marés Tristes",
+        category: "FESTIVAL",
+        excerpt:
+          "Realizado todo solstício de inverno em Valoran. Marinheiros perdidos no ano são lembrados.",
+        body:
+          "Durante três noites, lanternas de papel encerado são soltas no porto. Crianças cantam o Lamento das Marés enquanto os velhos pescadores derramam vinho doce sobre a pedra do cais. No último amanhecer, a guarda dispara três sinos longos; quem não estiver à beira-mar é considerado de mau agouro pelos próximos doze meses.",
+      },
+    }),
+    prisma.lore.create({
+      data: {
+        projectId: project.id,
+        title: "Cerimônia do Selo",
+        category: "CEREMONY",
+        excerpt:
+          "Procedimento legal antigo: para um decreto valer, deve ser selado em cera vermelha sob luz solar.",
+        body:
+          "O Magistrado de Valoran segura o Selo do Magistrado contra a cera enquanto a luz do meio-dia atinge o brasão. Documentos não selados sob o sol são considerados nulos pela tradição — mesmo que juridicamente válidos. O culto explora essa brecha falsificando selos em dias nublados.",
+      },
+    }),
+  ]);
+
+  // Tags do projeto + relações com capítulos
+  const [tagSuspense, tagPolitica, tagOcultismo] = await Promise.all([
+    prisma.tag.create({
+      data: { projectId: project.id, name: "suspense", color: "#a78bfa" },
+    }),
+    prisma.tag.create({
+      data: { projectId: project.id, name: "política", color: "#f59e0b" },
+    }),
+    prisma.tag.create({
+      data: { projectId: project.id, name: "ocultismo", color: "#34d399" },
+    }),
+  ]);
+
+  // Capítulo 1: Sa'Elis aparece, suspense
+  await prisma.chapterCharacter.create({
+    data: { chapterId: capitulos[0].id, characterId: saElis.id },
+  });
+  await prisma.chapterTag.create({
+    data: { chapterId: capitulos[0].id, tagId: tagSuspense.id },
+  });
+
+  // Capítulo 2: Sa'Elis + Jorek, política + suspense
+  await prisma.chapterCharacter.createMany({
+    data: [
+      { chapterId: capitulos[1].id, characterId: saElis.id },
+      { chapterId: capitulos[1].id, characterId: jorek.id },
+    ],
+  });
+  await prisma.chapterTag.createMany({
+    data: [
+      { chapterId: capitulos[1].id, tagId: tagPolitica.id },
+      { chapterId: capitulos[1].id, tagId: tagSuspense.id },
+    ],
+  });
+
+  // Capítulo 3: Sa'Elis + Rainha Ivera, ocultismo + suspense
+  await prisma.chapterCharacter.createMany({
+    data: [
+      { chapterId: capitulos[2].id, characterId: saElis.id },
+      { chapterId: capitulos[2].id, characterId: queenIvera.id },
+    ],
+  });
+  await prisma.chapterTag.createMany({
+    data: [
+      { chapterId: capitulos[2].id, tagId: tagOcultismo.id },
+      { chapterId: capitulos[2].id, tagId: tagSuspense.id },
+    ],
+  });
+
   // Silenciar warning de variável não usada do TS no contexto do seed
-  void [porto, cripta, queenIvera];
+  void [porto, cripta, dnd];
 
   console.log("Seed concluído: projeto 'A Queda de Valoran' criado.");
 }

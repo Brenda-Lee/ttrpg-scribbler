@@ -22,6 +22,7 @@ export default async function ProjectLayout({
       characters: { orderBy: { name: "asc" } },
       locations: { orderBy: { name: "asc" } },
       items: { orderBy: { name: "asc" } },
+      lore: { orderBy: { title: "asc" } },
     },
   });
   if (!project) notFound();
@@ -39,6 +40,7 @@ export default async function ProjectLayout({
           }))}
           locations={project.locations.map((l) => ({ id: l.id, name: l.name }))}
           items={project.items.map((i) => ({ id: i.id, name: i.name }))}
+          lore={project.lore.map((l) => ({ id: l.id, name: l.title, role: l.category }))}
         />
         <main className="relative flex-1 overflow-y-auto">{children}</main>
         <RightPanel />

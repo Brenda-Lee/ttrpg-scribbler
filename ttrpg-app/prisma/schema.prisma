@@ -47,6 +47,7 @@ model Project {
   glossary    GlossaryTerm[]
   tags        Tag[]
   assets      Asset[]
+  lore        Lore[]
 
   @@index([ownerId])
 }
@@ -82,10 +83,34 @@ model Chapter {
   summary String?
   order   Int     @default(0)
 
-  act    Act     @relation(fields: [actId], references: [id], onDelete: Cascade)
-  scenes Scene[]
+  act        Act                 @relation(fields: [actId], references: [id], onDelete: Cascade)
+  scenes     Scene[]
+  characters ChapterCharacter[]
+  tags       ChapterTag[]
 
   @@index([actId, order])
+}
+
+model ChapterCharacter {
+  chapterId   String
+  characterId String
+
+  chapter   Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@id([chapterId, characterId])
+  @@index([characterId])
+}
+
+model ChapterTag {
+  chapterId String
+  tagId     String
+
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([chapterId, tagId])
+  @@index([tagId])
 }
 
 model Scene {
@@ -113,9 +138,10 @@ model Character {
   attributesJson  String? // JSON serializado livre
   avatarAssetId   String?
 
-  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  avatarAsset   Asset?          @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
-  glossaryLinks GlossaryTerm[]  @relation("TermCharacter")
+  project       Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  avatarAsset   Asset?             @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
+  glossaryLinks GlossaryTerm[]     @relation("TermCharacter")
+  chapters      ChapterCharacter[]
 
   @@index([projectId])
 }
@@ -180,9 +206,26 @@ model Tag {
   name      String
   color     String @default("#94a3b8")
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project  Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  chapters ChapterTag[]
 
   @@unique([projectId, name])
+}
+
+model Lore {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String
+  category  String   @default("OTHER") // RELIGION | FESTIVAL | CEREMONY | CULTURE | HISTORY | OTHER
+  excerpt   String?
+  body      String   @default("")
+  metaJson  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, category])
 }
 
 model Asset {

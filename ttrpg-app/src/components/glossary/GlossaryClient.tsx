@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
+import { EntityKebabMenu } from "@/components/common/EntityKebabMenu";
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 
 type Term = {
   id: string;
@@ -47,6 +50,7 @@ export function GlossaryClient({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Term | null>(null);
   const [form, setForm] = useState({
     term: "",
     definition: "",
@@ -86,7 +90,6 @@ export function GlossaryClient({
   }
 
   async function remove(id: string) {
-    if (!confirm("Remover este termo?")) return;
     await fetch(`/api/glossary/${projectId}/${id}`, { method: "DELETE" });
     startTransition(() => router.refresh());
   }
@@ -195,8 +198,16 @@ export function GlossaryClient({
           </div>
         ) : (
           initialTerms.map((t) => (
-            <Card key={t.id} className="space-y-2 p-4">
-              <div className="flex items-start justify-between gap-2">
+            <Card
+              key={t.id}
+              className="group relative space-y-2 p-4 transition-colors hover:border-primary/40 hover:bg-accent/30"
+            >
+              <Link
+                href={`/projects/${projectId}/glossary/${t.id}`}
+                className="absolute inset-0 z-0"
+                aria-label={`Abrir ${t.term}`}
+              />
+              <div className="relative z-10 flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-medium">{t.term}</h3>
                   <div className="mt-1 flex flex-wrap gap-1">
@@ -215,20 +226,26 @@ export function GlossaryClient({
                     ) : null}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => remove(t.id)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                <EntityKebabMenu
+                  stopPropagation
+                  onDelete={() => setDeleteTarget(t)}
+                />
               </div>
-              <p className="text-sm text-muted-foreground">{t.definition}</p>
+              <p className="relative z-10 text-sm text-muted-foreground">{t.definition}</p>
             </Card>
           ))
         )}
       </div>
+
+      <ConfirmDeleteDialog
+        open={deleteTarget !== null}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title={deleteTarget ? `Excluir o termo "${deleteTarget.term}"?` : ""}
+        description="Esta ação não pode ser desfeita."
+        onConfirm={async () => {
+          if (deleteTarget) await remove(deleteTarget.id);
+        }}
+      />
     </div>
   );
 }

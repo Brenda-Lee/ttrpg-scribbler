@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Plus, User, MapPin, Package } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, User, MapPin, Package, Scroll } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,10 @@ type Props = {
   characters: Entity[];
   locations: Entity[];
   items: Entity[];
+  lore: Entity[];
 };
 
-export function LeftSidebar({ projectId, characters, locations, items }: Props) {
+export function LeftSidebar({ projectId, characters, locations, items, lore }: Props) {
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r bg-card md:flex">
       <ScrollArea className="flex-1">
@@ -47,7 +48,7 @@ export function LeftSidebar({ projectId, characters, locations, items }: Props) 
             {locations.map((l) => (
               <EntityRow
                 key={l.id}
-                href={`/projects/${projectId}/world#location-${l.id}`}
+                href={`/projects/${projectId}/world/locations/${l.id}`}
                 name={l.name}
               />
             ))}
@@ -61,8 +62,23 @@ export function LeftSidebar({ projectId, characters, locations, items }: Props) 
             {items.map((i) => (
               <EntityRow
                 key={i.id}
-                href={`/projects/${projectId}/world#item-${i.id}`}
+                href={`/projects/${projectId}/world/items/${i.id}`}
                 name={i.name}
+              />
+            ))}
+          </Section>
+          <Section
+            title="Lore"
+            count={lore.length}
+            icon={Scroll}
+            href={`/projects/${projectId}/lore`}
+          >
+            {lore.map((l) => (
+              <EntityRow
+                key={l.id}
+                href={`/projects/${projectId}/world/lore/${l.id}`}
+                name={l.name}
+                badge={l.role}
               />
             ))}
           </Section>
