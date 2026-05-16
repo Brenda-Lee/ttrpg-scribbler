@@ -51,4 +51,5 @@ prisma/test.db-journal
 
 # Others
 /.claude/
+CLAUDE.md
 /sourceMaterial/
