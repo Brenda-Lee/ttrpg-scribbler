@@ -18,7 +18,7 @@ beforeEach(async () => {
 });
 
 describe("POST /api/characters/[projectId]", () => {
-  it("creates a character with attributesJson stringified", async () => {
+  it("creates a character with attributesJson stringified and an attached sheet", async () => {
     const user = await makeUser();
     const project = await makeProject(user.id);
 
@@ -35,11 +35,22 @@ describe("POST /api/characters/[projectId]", () => {
     const created = (await res.json()) as { id: string; name: string };
     expect(created.name).toBe("Sa'Elis");
 
-    const reloaded = await prisma.character.findUnique({ where: { id: created.id } });
+    const reloaded = await prisma.character.findUnique({
+      where: { id: created.id },
+      include: { sheet: true },
+    });
     expect(reloaded?.role).toBe("PC");
     expect(reloaded?.bio).toBe("Maga errante.");
     expect(typeof reloaded?.attributesJson).toBe("string");
     expect(JSON.parse(reloaded!.attributesJson!)).toEqual({ classe: "Maga", nivel: 3 });
+
+    // Sheet was created atomically alongside the character.
+    expect(reloaded?.sheet).not.toBeNull();
+    expect(reloaded?.sheet?.systemSlug).toBe("generic");
+    expect(reloaded?.sheet?.schemaVersion).toBeGreaterThanOrEqual(1);
+    const data = JSON.parse(reloaded!.sheet!.dataJson);
+    expect(typeof data).toBe("object");
+    expect(Array.isArray(data)).toBe(false);
   });
 
   it("defaults role to NPC when omitted", async () => {

@@ -9,12 +9,21 @@ import {
   type ConditionSeverity,
 } from "@/lib/bodyRegions";
 
+const ModifierSchema = z
+  .object({
+    field: z.string().min(1),
+    delta: z.number(),
+    reason: z.string().max(200).optional(),
+  })
+  .strict();
+
 const PatchSchema = z.object({
   region: z.enum([...BODY_REGIONS] as [BodyRegion, ...BodyRegion[]]).optional(),
   severity: z
     .enum([...CONDITION_SEVERITIES] as [ConditionSeverity, ...ConditionSeverity[]])
     .optional(),
   description: z.string().max(1000).nullable().optional(),
+  modifiersJson: z.array(ModifierSchema).nullable().optional(),
 });
 
 async function loadOwned(projectId: string, characterId: string, conditionId: string) {
@@ -45,6 +54,12 @@ export async function PATCH(
   if (parsed.data.region !== undefined) data.region = parsed.data.region;
   if (parsed.data.severity !== undefined) data.severity = parsed.data.severity;
   if (parsed.data.description !== undefined) data.description = parsed.data.description;
+  if (parsed.data.modifiersJson !== undefined) {
+    data.modifiersJson =
+      parsed.data.modifiersJson === null
+        ? null
+        : JSON.stringify(parsed.data.modifiersJson);
+  }
 
   await prisma.characterCondition.update({ where: { id: conditionId }, data });
   return NextResponse.json({ ok: true });

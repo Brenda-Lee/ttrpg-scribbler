@@ -17,6 +17,9 @@ import { Audio } from "@/lib/tiptap/audioExtension";
 import { useWorkspace } from "@/stores/workspace";
 import { type MentionKind } from "@/lib/mentions";
 import type { GlossaryWord } from "@/lib/grammar/rules";
+import { useDebouncedAutosave } from "@/hooks/useDebouncedAutosave";
+
+type AutosavePayload = { json: JSONContent; text: string; serialized: string };
 
 const MENTION_KINDS = new Set<MentionKind>([
   "glossary",
@@ -41,7 +44,6 @@ export function TiptapEditor({
   placeholder,
   glossaryWords,
 }: Props) {
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef<string>(JSON.stringify(initialContent ?? {}));
   const setCurrentText = useWorkspace((s) => s.setCurrentText);
   const setGlossaryWords = useWorkspace((s) => s.setGlossaryWords);
@@ -51,9 +53,39 @@ export function TiptapEditor({
   const setSelectedEntity = useWorkspace((s) => s.setSelectedEntity);
   const bumpHistory = useWorkspace((s) => s.bumpHistory);
 
+  const autosave = useDebouncedAutosave<AutosavePayload>({
+    delayMs: 800,
+    onSave: async ({ json, text, serialized }) => {
+      const res = await fetch(`/api/scenes/${sceneId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contentJson: json,
+          contentText: text,
+          wordCount: text.trim() ? text.trim().split(/\s+/).length : 0,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`save failed: ${res.status}`);
+      }
+      lastSavedRef.current = serialized;
+      setLastSavedAt(Date.now());
+      bumpHistory();
+    },
+    onStatus: setSaveStatus,
+  });
+  const scheduleRef = useRef(autosave.schedule);
+  scheduleRef.current = autosave.schedule;
+
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      // StarterKit v3 já registra `link` e `underline`; desabilitamos para
+      // poder configurar `Link` com nossas opções sem duplicar a extensão.
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        link: false,
+        underline: false,
+      }),
       Underline,
       Link.configure({ openOnClick: false, autolink: true }),
       Placeholder.configure({ placeholder: placeholder ?? "Comece a escrever sua cena..." }),
@@ -79,33 +111,7 @@ export function TiptapEditor({
       const text = editor.getText();
       const serialized = JSON.stringify(json);
       if (serialized === lastSavedRef.current) return;
-
-      setSaveStatus("saving");
-
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      saveTimer.current = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/scenes/${sceneId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contentJson: json,
-              contentText: text,
-              wordCount: text.trim() ? text.trim().split(/\s+/).length : 0,
-            }),
-          });
-          if (res.ok) {
-            lastSavedRef.current = serialized;
-            setSaveStatus("saved");
-            setLastSavedAt(Date.now());
-            bumpHistory();
-          } else {
-            setSaveStatus("error");
-          }
-        } catch {
-          setSaveStatus("error");
-        }
-      }, 800);
+      scheduleRef.current({ json, text, serialized });
     },
   });
 
@@ -158,9 +164,9 @@ export function TiptapEditor({
   }, [editor]);
 
   // Limpeza no unmount do editor (mudança de cena / saída da página).
+  // O hook useDebouncedAutosave já cancela o timer pendente no seu próprio cleanup.
   useEffect(() => {
     return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
       setCurrentText(null);
       setGlossaryWords([]);
       setSaveStatus("idle");

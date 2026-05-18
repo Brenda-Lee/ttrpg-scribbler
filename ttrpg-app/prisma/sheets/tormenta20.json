@@ -1,0 +1,214 @@
+{
+  "systemSlug": "tormenta20",
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identidade",
+      "fields": [
+        { "id": "raca", "label": "Raça", "type": "text" },
+        { "id": "origem", "label": "Origem", "type": "text" },
+        { "id": "classe", "label": "Classe e Nível", "type": "text" },
+        { "id": "divindade", "label": "Divindade", "type": "text" },
+        { "id": "xp", "label": "Pontos de Experiência", "type": "number", "default": 0 }
+      ]
+    },
+    {
+      "id": "attributes",
+      "title": "Atributos",
+      "fields": [
+        { "id": "for", "label": "Força", "type": "number", "default": 0 },
+        { "id": "des", "label": "Destreza", "type": "number", "default": 0 },
+        { "id": "con", "label": "Constituição", "type": "number", "default": 0 },
+        { "id": "int", "label": "Inteligência", "type": "number", "default": 0 },
+        { "id": "sab", "label": "Sabedoria", "type": "number", "default": 0 },
+        { "id": "car", "label": "Carisma", "type": "number", "default": 0 }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": "Combate",
+      "fields": [
+        { "id": "defesa_base", "label": "Defesa base", "type": "number", "default": 10 },
+        {
+          "id": "defesa_efetiva",
+          "label": "Defesa efetiva",
+          "type": "derived",
+          "formula": "defesa_base + des"
+        },
+        { "id": "pv_max", "label": "PV Máximo", "type": "number", "default": 8 },
+        { "id": "pv_atual", "label": "PV Atual", "type": "number", "default": 8 },
+        { "id": "deslocamento", "label": "Deslocamento", "type": "number", "default": 9, "unit": "m" },
+        {
+          "id": "tamanho",
+          "label": "Tamanho",
+          "type": "select",
+          "options": ["Minúsculo", "Pequeno", "Médio", "Grande", "Enorme", "Colossal"],
+          "default": "Médio"
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "Perícias",
+      "fields": [
+        {
+          "id": "pericias",
+          "label": "Perícias treinadas",
+          "type": "repeating-list",
+          "itemSchema": [
+            {
+              "id": "nome",
+              "label": "Perícia",
+              "type": "select",
+              "options": [
+                "Acrobacia", "Adestramento", "Atletismo", "Atuação", "Cavalgar", "Conhecimento",
+                "Cura", "Diplomacia", "Enganação", "Fortitude", "Furtividade", "Guerra",
+                "Iniciativa", "Intimidação", "Intuição", "Investigação", "Jogatina", "Ladinagem",
+                "Luta", "Misticismo", "Nobreza", "Ofício", "Percepção", "Pilotagem", "Pontaria",
+                "Reflexos", "Religião", "Sobrevivência", "Vontade"
+              ]
+            },
+            { "id": "ta", "label": "T.A.", "type": "number", "default": 0 },
+            {
+              "id": "atributo",
+              "label": "Atributo",
+              "type": "select",
+              "options": ["FOR", "DES", "CON", "INT", "SAB", "CAR"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "attacks",
+      "title": "Ataques",
+      "fields": [
+        {
+          "id": "ataques",
+          "label": "Ataques",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "nome", "label": "Nome", "type": "text" },
+            { "id": "teste", "label": "Teste", "type": "number", "default": 0 },
+            { "id": "dano", "label": "Dano", "type": "text" },
+            { "id": "critico", "label": "Crítico", "type": "text" },
+            { "id": "alcance", "label": "Alcance", "type": "text" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spells",
+      "title": "Magias",
+      "fields": [
+        {
+          "id": "magias",
+          "label": "Magias conhecidas",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "nome", "label": "Magia", "type": "text" },
+            {
+              "id": "circulo",
+              "label": "Círculo",
+              "type": "select",
+              "options": ["1", "2", "3", "4", "5"]
+            },
+            {
+              "id": "escola",
+              "label": "Escola",
+              "type": "select",
+              "options": [
+                "Abjuração", "Adivinhação", "Convocação", "Encantamento", "Evocação",
+                "Ilusão", "Necromancia", "Transmutação"
+              ]
+            },
+            { "id": "execucao", "label": "Execução", "type": "text" },
+            { "id": "alcance", "label": "Alcance", "type": "text" },
+            { "id": "duracao", "label": "Duração", "type": "text" },
+            { "id": "resistencia", "label": "Resistência", "type": "checkbox", "default": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "equipment",
+      "title": "Equipamento",
+      "fields": [
+        {
+          "id": "itens",
+          "label": "Itens",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "nome", "label": "Item", "type": "text" },
+            { "id": "peso", "label": "Peso", "type": "number", "default": 0 },
+            { "id": "custo", "label": "Custo (T$)", "type": "number", "default": 0 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "powers",
+      "title": "Habilidades e Poderes",
+      "fields": [
+        { "id": "habilidades_raca", "label": "Habilidades de Raça", "type": "textarea" },
+        { "id": "habilidades_classe", "label": "Habilidades de Classe", "type": "textarea" },
+        { "id": "poderes", "label": "Poderes", "type": "textarea" }
+      ]
+    },
+    {
+      "id": "notes",
+      "title": "Anotações",
+      "fields": [
+        { "id": "descricao", "label": "Descrição", "type": "textarea" },
+        { "id": "anotacoes", "label": "Anotações", "type": "textarea" }
+      ]
+    }
+  ],
+  "injuryPresets": [
+    {
+      "region": "HEAD",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "int", "delta": -2, "reason": "Cabeça severamente ferida" },
+        { "field": "sab", "delta": -2, "reason": "Cabeça severamente ferida" }
+      ]
+    },
+    {
+      "region": "HEAD",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "int", "delta": -4, "reason": "Cabeça em estado crítico" },
+        { "field": "sab", "delta": -4, "reason": "Cabeça em estado crítico" }
+      ]
+    },
+    {
+      "region": "LEFT_LEG",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "deslocamento", "delta": -3, "reason": "Perna esquerda severamente ferida" }
+      ]
+    },
+    {
+      "region": "LEFT_LEG",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "deslocamento", "delta": -6, "reason": "Perna esquerda em estado crítico" }
+      ]
+    },
+    {
+      "region": "RIGHT_LEG",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "deslocamento", "delta": -3, "reason": "Perna direita severamente ferida" }
+      ]
+    },
+    {
+      "region": "RIGHT_LEG",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "deslocamento", "delta": -6, "reason": "Perna direita em estado crítico" }
+      ]
+    }
+  ]
+}

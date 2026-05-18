@@ -60,7 +60,7 @@ export function SceneCard({ projectId, sceneId, title, snippet, status, wordCoun
 
   return (
     <>
-      <Card className="group p-3 transition-colors hover:border-primary/40 hover:bg-accent/40">
+      <Card className="group overflow-hidden p-3 transition-colors hover:border-primary/40 hover:bg-accent/40">
         <div className="flex items-start justify-between gap-2">
           {editing ? (
             <Input
@@ -76,18 +76,18 @@ export function SceneCard({ projectId, sceneId, title, snippet, status, wordCoun
               }}
               onBlur={rename}
               onClick={(e) => e.stopPropagation()}
-              className="h-7 text-sm font-medium"
+              className="h-7 min-w-0 flex-1 text-sm font-medium"
             />
           ) : (
             <Link
               href={`/projects/${projectId}/write/${sceneId}`}
-              className="flex flex-1 items-center gap-1.5 text-sm font-medium leading-tight"
+              className="flex min-w-0 flex-1 items-center gap-1.5 text-sm font-medium leading-tight"
             >
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              {title}
+              <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{title}</span>
             </Link>
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex shrink-0 items-center gap-1">
             <Badge variant="outline" className="text-[10px] font-normal">
               {statusLabel[status] ?? status}
             </Badge>
@@ -104,7 +104,9 @@ export function SceneCard({ projectId, sceneId, title, snippet, status, wordCoun
           tabIndex={-1}
         >
           {snippet ? (
-            <p className="line-clamp-2 text-xs text-muted-foreground">{snippet}</p>
+            <p className="line-clamp-2 break-words text-xs text-muted-foreground">
+              {snippet}
+            </p>
           ) : (
             <p className="text-xs italic text-muted-foreground/60">(cena vazia)</p>
           )}

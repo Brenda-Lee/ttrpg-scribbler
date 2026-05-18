@@ -1,9 +1,44 @@
+import fs from "node:fs";
+import path from "node:path";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { parseSheetSchema } from "../src/lib/sheets/parser";
+import { extractDefaults } from "../src/lib/sheets/defaults";
+import type { SheetSchema } from "../src/lib/sheets/types";
 
 const prisma = new PrismaClient();
 const DEFAULT_EMAIL = "owner@local.com";
 const DEFAULT_PASSWORD = "scribbler123";
+
+// Os arquivos `prisma/sheets/*.json` são a fonte de verdade do esquema da
+// ficha por sistema. Atualize `schemaVersion` sempre que mudar a forma —
+// `loadSheetSchema` usa esse número para invalidar caches e cair no bundle.
+// Veja `prisma/sheets/README.md`.
+const SHEETS_DIR = path.resolve(__dirname, "sheets");
+
+function loadBundledSchema(filename: string): { raw: string; schema: SheetSchema } {
+  const raw = fs.readFileSync(path.join(SHEETS_DIR, filename), "utf-8");
+  const schema = parseSheetSchema(JSON.parse(raw));
+  return { raw, schema };
+}
+
+async function ensureCharacterSheet(
+  characterId: string,
+  schema: SheetSchema,
+): Promise<void> {
+  const existing = await prisma.characterSheet.findUnique({
+    where: { characterId },
+  });
+  if (existing) return;
+  await prisma.characterSheet.create({
+    data: {
+      characterId,
+      systemSlug: schema.systemSlug,
+      schemaVersion: schema.schemaVersion,
+      dataJson: JSON.stringify(extractDefaults(schema)),
+    },
+  });
+}
 
 async function main() {
   const forceReset = process.argv.includes("--reset");
@@ -41,12 +76,19 @@ async function main() {
     data: { name: "Mestre Local", email: DEFAULT_EMAIL, password: passwordHash },
   });
 
+  const dndBundle = loadBundledSchema("dnd-5e.json");
+  const tormentaBundle = loadBundledSchema("tormenta20.json");
+
   const [dnd, tormenta] = await Promise.all([
     prisma.system.create({
-      data: { name: "D&D 5e", slug: "dnd-5e" },
+      data: { name: "D&D 5e", slug: "dnd-5e", rulesJson: dndBundle.raw },
     }),
     prisma.system.create({
-      data: { name: "Tormenta 20", slug: "tormenta20" },
+      data: {
+        name: "Tormenta 20",
+        slug: "tormenta20",
+        rulesJson: tormentaBundle.raw,
+      },
     }),
   ]);
 
@@ -94,6 +136,11 @@ async function main() {
       },
     }),
   ]);
+
+  // Fichas: 1:1 com Character. Projeto demo usa o sistema Tormenta 20.
+  for (const character of [saElis, jorek, queenIvera]) {
+    await ensureCharacterSheet(character.id, tormentaBundle.schema);
+  }
 
   // Locais
   const [valoran, porto, cripta] = await Promise.all([

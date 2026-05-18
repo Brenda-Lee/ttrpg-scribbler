@@ -463,7 +463,7 @@ function SortableChapter({
       ref={setNodeRef}
       style={style}
       data-chapter-id={chapter.id}
-      className="space-y-3 rounded-lg border bg-card/40 p-3"
+      className="min-w-0 space-y-3 overflow-hidden rounded-lg border bg-card/40 p-3"
     >
       <div className="flex items-start gap-1">
         <DragHandle
@@ -471,7 +471,7 @@ function SortableChapter({
           listeners={listeners}
           label={`Arrastar capítulo ${chapter.title}`}
         />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <ChapterHeader chapterId={chapter.id} title={chapter.title} />
         </div>
       </div>
@@ -521,7 +521,7 @@ function SortableScene({ scene, projectId }: { scene: SceneDTO; projectId: strin
         label={`Arrastar cena ${scene.title}`}
         className="mt-2"
       />
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <SceneCard
           projectId={projectId}
           sceneId={scene.id}

@@ -67,20 +67,22 @@ export function ChapterHeader({
           }}
           onBlur={save}
           disabled={pending}
-          className="h-7 text-sm font-semibold"
+          className="h-7 min-w-0 flex-1 text-sm font-semibold"
         />
       ) : (
         <h3
-          className="cursor-text text-sm font-semibold leading-tight"
+          className="min-w-0 flex-1 cursor-text break-words text-sm font-semibold leading-tight"
           onDoubleClick={() => setEditing(true)}
         >
           {title}
         </h3>
       )}
-      <EntityKebabMenu
-        onRename={() => setEditing(true)}
-        onDelete={() => setConfirmOpen(true)}
-      />
+      <div className="shrink-0">
+        <EntityKebabMenu
+          onRename={() => setEditing(true)}
+          onDelete={() => setConfirmOpen(true)}
+        />
+      </div>
       <ConfirmDeleteDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}

@@ -190,11 +190,11 @@ export function LoreClient({
               >
                 <Link
                   href={`/projects/${projectId}/lore/${l.id}`}
-                  className="absolute inset-0 z-0"
+                  className="absolute inset-0"
                   aria-label={`Abrir ${l.title}`}
                 />
-                <div className="relative z-10 flex items-start justify-between gap-2">
-                  <div>
+                <div className="pointer-events-none relative flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-medium leading-tight">{l.title}</h3>
                     <Badge
                       variant="secondary"
@@ -203,10 +203,12 @@ export function LoreClient({
                       {LORE_CATEGORY_LABEL[cat]}
                     </Badge>
                   </div>
-                  <EntityKebabMenu stopPropagation onDelete={() => setDeleteTarget(l)} />
+                  <div className="pointer-events-auto shrink-0">
+                    <EntityKebabMenu stopPropagation onDelete={() => setDeleteTarget(l)} />
+                  </div>
                 </div>
                 {l.excerpt ? (
-                  <p className="relative z-10 line-clamp-3 text-sm text-muted-foreground">
+                  <p className="pointer-events-none relative line-clamp-3 text-sm text-muted-foreground">
                     {l.excerpt}
                   </p>
                 ) : null}

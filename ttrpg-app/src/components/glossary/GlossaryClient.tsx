@@ -205,11 +205,11 @@ export function GlossaryClient({
             >
               <Link
                 href={`/projects/${projectId}/glossary/${t.id}`}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0"
                 aria-label={`Abrir ${t.term}`}
               />
-              <div className="relative z-10 flex items-start justify-between gap-2">
-                <div>
+              <div className="pointer-events-none relative flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
                   <h3 className="font-medium">{t.term}</h3>
                   <div className="mt-1 flex flex-wrap gap-1">
                     <Badge variant="secondary" className="text-[10px]">
@@ -227,12 +227,16 @@ export function GlossaryClient({
                     ) : null}
                   </div>
                 </div>
-                <EntityKebabMenu
-                  stopPropagation
-                  onDelete={() => setDeleteTarget(t)}
-                />
+                <div className="pointer-events-auto shrink-0">
+                  <EntityKebabMenu
+                    stopPropagation
+                    onDelete={() => setDeleteTarget(t)}
+                  />
+                </div>
               </div>
-              <p className="relative z-10 text-sm text-muted-foreground">{t.definition}</p>
+              <p className="pointer-events-none relative line-clamp-3 text-sm text-muted-foreground">
+                {t.definition}
+              </p>
             </Card>
           ))
         )}

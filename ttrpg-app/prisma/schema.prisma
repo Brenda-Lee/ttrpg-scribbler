@@ -64,9 +64,9 @@ model VerificationToken {
 }
 
 model System {
-  id       String  @id @default(cuid())
-  name     String
-  slug     String  @unique
+  id        String  @id @default(cuid())
+  name      String
+  slug      String  @unique
   rulesJson String? // JSON serializado (atributos, classes, etc.)
 
   projects Project[]
@@ -82,18 +82,18 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner       User             @relation("OwnerProjects", fields: [ownerId], references: [id], onDelete: Cascade)
-  system      System?          @relation(fields: [systemId], references: [id])
-  members     Member[]
-  acts        Act[]
-  characters  Character[]
-  locations   Location[]
-  items       Item[]
-  glossary    GlossaryTerm[]
-  tags        Tag[]
-  assets      Asset[]
-  lore        Lore[]
-  events      Event[]
+  owner      User           @relation("OwnerProjects", fields: [ownerId], references: [id], onDelete: Cascade)
+  system     System?        @relation(fields: [systemId], references: [id])
+  members    Member[]
+  acts       Act[]
+  characters Character[]
+  locations  Location[]
+  items      Item[]
+  glossary   GlossaryTerm[]
+  tags       Tag[]
+  assets     Asset[]
+  lore       Lore[]
+  events     Event[]
 
   @@index([ownerId])
 }
@@ -129,7 +129,7 @@ model Chapter {
   summary String?
   order   Int     @default(0)
 
-  act        Act                 @relation(fields: [actId], references: [id], onDelete: Cascade)
+  act        Act                @relation(fields: [actId], references: [id], onDelete: Cascade)
   scenes     Scene[]
   characters ChapterCharacter[]
   tags       ChapterTag[]
@@ -179,7 +179,7 @@ model Scene {
 model SceneRevision {
   id          String   @id @default(cuid())
   sceneId     String
-  contentJson String   // Tiptap JSONContent serializado (mesmo formato de Scene.contentJson)
+  contentJson String // Tiptap JSONContent serializado (mesmo formato de Scene.contentJson)
   contentText String   @default("")
   wordCount   Int      @default(0)
   kind        String   @default("AUTO") // AUTO | MANUAL
@@ -192,31 +192,47 @@ model SceneRevision {
 }
 
 model Character {
-  id              String  @id @default(cuid())
-  projectId       String
-  name            String
-  role            String  @default("NPC") // PC | NPC | VILLAIN | MONSTER
-  bio             String?
-  attributesJson  String? // JSON serializado livre
-  avatarAssetId   String?
+  id             String  @id @default(cuid())
+  projectId      String
+  name           String
+  role           String  @default("NPC") // PC | NPC | VILLAIN | MONSTER
+  bio            String?
+  attributesJson String? // JSON serializado livre
+  avatarAssetId  String?
 
   project       Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
   avatarAsset   Asset?               @relation("CharacterAvatar", fields: [avatarAssetId], references: [id])
   glossaryLinks GlossaryTerm[]       @relation("TermCharacter")
   chapters      ChapterCharacter[]
   conditions    CharacterCondition[]
+  sheet         CharacterSheet?
 
   @@index([projectId])
 }
 
+model CharacterSheet {
+  id            String   @id @default(cuid())
+  characterId   String   @unique
+  systemSlug    String // "dnd-5e" | "tormenta20" | "generic"
+  schemaVersion Int      @default(1)
+  dataJson      String // JSON serializado dos valores base (campos NÃO derivados)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([systemSlug])
+}
+
 model CharacterCondition {
-  id          String   @id @default(cuid())
-  characterId String
-  region      String   // HEAD | NECK | TORSO_FRONT | TORSO_BACK | LEFT_ARM | RIGHT_ARM | LEFT_HAND | RIGHT_HAND | LEFT_LEG | RIGHT_LEG | LEFT_FOOT | RIGHT_FOOT
-  severity    String   @default("LIGHT") // LIGHT | MODERATE | SEVERE | CRITICAL
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  characterId   String
+  region        String // HEAD | NECK | TORSO_FRONT | TORSO_BACK | LEFT_ARM | RIGHT_ARM | LEFT_HAND | RIGHT_HAND | LEFT_LEG | RIGHT_LEG | LEFT_FOOT | RIGHT_FOOT
+  severity      String   @default("LIGHT") // LIGHT | MODERATE | SEVERE | CRITICAL
+  description   String?
+  modifiersJson String? // JSON: [{ field, delta, reason? }] — overrides/extensões dos presets do sistema
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
@@ -231,10 +247,10 @@ model Location {
   parentId    String?
   metaJson    String?
 
-  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parent        Location?       @relation("LocationParent", fields: [parentId], references: [id])
-  children      Location[]      @relation("LocationParent")
-  glossaryLinks GlossaryTerm[]  @relation("TermLocation")
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent        Location?      @relation("LocationParent", fields: [parentId], references: [id])
+  children      Location[]     @relation("LocationParent")
+  glossaryLinks GlossaryTerm[] @relation("TermLocation")
 
   @@index([projectId])
 }
@@ -246,8 +262,8 @@ model Item {
   description String?
   metaJson    String?
 
-  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  glossaryLinks GlossaryTerm[]  @relation("TermItem")
+  project       Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  glossaryLinks GlossaryTerm[] @relation("TermItem")
 
   @@index([projectId])
 }
@@ -268,10 +284,10 @@ model GlossaryTerm {
   relatedLocationId  String?
   relatedItemId      String?
 
-  project           Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  relatedCharacter  Character? @relation("TermCharacter", fields: [relatedCharacterId], references: [id])
-  relatedLocation   Location?  @relation("TermLocation", fields: [relatedLocationId], references: [id])
-  relatedItem       Item?      @relation("TermItem", fields: [relatedItemId], references: [id])
+  project          Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  relatedCharacter Character? @relation("TermCharacter", fields: [relatedCharacterId], references: [id])
+  relatedLocation  Location?  @relation("TermLocation", fields: [relatedLocationId], references: [id])
+  relatedItem      Item?      @relation("TermItem", fields: [relatedItemId], references: [id])
 
   @@unique([projectId, slug])
   @@index([projectId, term])
@@ -313,8 +329,8 @@ model Asset {
   mime      String
   sizeBytes Int
 
-  project           Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  charactersAvatar  Character[] @relation("CharacterAvatar")
+  project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  charactersAvatar Character[] @relation("CharacterAvatar")
 
   @@index([projectId])
 }

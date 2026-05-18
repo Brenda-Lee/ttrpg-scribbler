@@ -1,0 +1,228 @@
+{
+  "systemSlug": "dnd-5e",
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identidade",
+      "fields": [
+        { "id": "class_level", "label": "Classe e Nível", "type": "text" },
+        { "id": "race", "label": "Raça", "type": "text" },
+        { "id": "background", "label": "Antecedente", "type": "text" },
+        {
+          "id": "alignment",
+          "label": "Alinhamento",
+          "type": "select",
+          "options": [
+            "Leal e Bom",
+            "Neutro e Bom",
+            "Caótico e Bom",
+            "Leal e Neutro",
+            "Neutro",
+            "Caótico e Neutro",
+            "Leal e Mau",
+            "Neutro e Mau",
+            "Caótico e Mau"
+          ]
+        },
+        { "id": "xp", "label": "Pontos de Experiência", "type": "number", "default": 0 }
+      ]
+    },
+    {
+      "id": "attributes",
+      "title": "Atributos",
+      "fields": [
+        { "id": "str", "label": "Força", "type": "number", "default": 10 },
+        { "id": "dex", "label": "Destreza", "type": "number", "default": 10 },
+        { "id": "con", "label": "Constituição", "type": "number", "default": 10 },
+        { "id": "int", "label": "Inteligência", "type": "number", "default": 10 },
+        { "id": "wis", "label": "Sabedoria", "type": "number", "default": 10 },
+        { "id": "cha", "label": "Carisma", "type": "number", "default": 10 },
+        { "id": "proficiency", "label": "Bônus de Proficiência", "type": "number", "default": 2 },
+        { "id": "inspiration", "label": "Inspiração", "type": "checkbox", "default": false }
+      ]
+    },
+    {
+      "id": "modifiers",
+      "title": "Modificadores",
+      "fields": [
+        { "id": "str_mod", "label": "Mod. Força", "type": "derived", "formula": "mod(str)" },
+        { "id": "dex_mod", "label": "Mod. Destreza", "type": "derived", "formula": "mod(dex)" },
+        { "id": "con_mod", "label": "Mod. Constituição", "type": "derived", "formula": "mod(con)" },
+        { "id": "int_mod", "label": "Mod. Inteligência", "type": "derived", "formula": "mod(int)" },
+        { "id": "wis_mod", "label": "Mod. Sabedoria", "type": "derived", "formula": "mod(wis)" },
+        { "id": "cha_mod", "label": "Mod. Carisma", "type": "derived", "formula": "mod(cha)" },
+        { "id": "passive_wisdom", "label": "Sabedoria Passiva", "type": "derived", "formula": "10 + mod(wis)" }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": "Combate",
+      "fields": [
+        { "id": "ca", "label": "Classe de Armadura", "type": "number", "default": 10 },
+        { "id": "hp_max", "label": "Pontos de Vida Máximos", "type": "number", "default": 8 },
+        { "id": "hp_current", "label": "Pontos de Vida Atuais", "type": "number", "default": 8 },
+        {
+          "id": "hit_die",
+          "label": "Dado de Vida",
+          "type": "select",
+          "options": ["d6", "d8", "d10", "d12"],
+          "default": "d8"
+        },
+        { "id": "speed", "label": "Velocidade", "type": "number", "default": 9, "unit": "m" }
+      ]
+    },
+    {
+      "id": "saving_throws",
+      "title": "Salvaguardas",
+      "fields": [
+        { "id": "save_str", "label": "Força", "type": "checkbox", "default": false },
+        { "id": "save_dex", "label": "Destreza", "type": "checkbox", "default": false },
+        { "id": "save_con", "label": "Constituição", "type": "checkbox", "default": false },
+        { "id": "save_int", "label": "Inteligência", "type": "checkbox", "default": false },
+        { "id": "save_wis", "label": "Sabedoria", "type": "checkbox", "default": false },
+        { "id": "save_cha", "label": "Carisma", "type": "checkbox", "default": false }
+      ]
+    },
+    {
+      "id": "skills",
+      "title": "Perícias",
+      "fields": [
+        {
+          "id": "skills",
+          "label": "Perícias treinadas",
+          "type": "repeating-list",
+          "itemSchema": [
+            {
+              "id": "name",
+              "label": "Perícia",
+              "type": "select",
+              "options": [
+                "Acrobacia", "Arcanismo", "Atletismo", "Atuação", "Enganação", "Furtividade",
+                "História", "Intimidação", "Intuição", "Investigação", "Lidar com Animais",
+                "Medicina", "Natureza", "Percepção", "Persuasão", "Prestidigitação",
+                "Religião", "Sobrevivência"
+              ]
+            },
+            { "id": "proficient", "label": "Proficiente", "type": "checkbox", "default": false }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "attacks",
+      "title": "Ataques",
+      "fields": [
+        {
+          "id": "attacks",
+          "label": "Ataques",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "name", "label": "Nome", "type": "text" },
+            { "id": "bonus", "label": "Bônus", "type": "number", "default": 0 },
+            { "id": "damage", "label": "Dano", "type": "text" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spells",
+      "title": "Magias",
+      "fields": [
+        {
+          "id": "spells",
+          "label": "Magias preparadas",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "name", "label": "Nome", "type": "text" },
+            {
+              "id": "level",
+              "label": "Nível",
+              "type": "select",
+              "options": ["truque", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "equipment",
+      "title": "Equipamento",
+      "fields": [
+        {
+          "id": "items",
+          "label": "Itens",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "name", "label": "Item", "type": "text" },
+            { "id": "qty", "label": "Quantidade", "type": "number", "default": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "personality",
+      "title": "Personalidade",
+      "fields": [
+        { "id": "traits", "label": "Traços", "type": "textarea" },
+        { "id": "ideals", "label": "Ideais", "type": "textarea" },
+        { "id": "bonds", "label": "Vínculos", "type": "textarea" },
+        { "id": "flaws", "label": "Fraquezas", "type": "textarea" }
+      ]
+    },
+    {
+      "id": "proficiencies",
+      "title": "Proficiências & Idiomas",
+      "fields": [
+        { "id": "proficiencies", "label": "Proficiências", "type": "textarea" },
+        { "id": "languages", "label": "Idiomas", "type": "textarea" }
+      ]
+    }
+  ],
+  "injuryPresets": [
+    {
+      "region": "HEAD",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "int", "delta": -2, "reason": "Cabeça severamente ferida" },
+        { "field": "wis", "delta": -2, "reason": "Cabeça severamente ferida" }
+      ]
+    },
+    {
+      "region": "HEAD",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "int", "delta": -4, "reason": "Cabeça em estado crítico" },
+        { "field": "wis", "delta": -4, "reason": "Cabeça em estado crítico" }
+      ]
+    },
+    {
+      "region": "LEFT_LEG",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "speed", "delta": -3, "reason": "Perna esquerda severamente ferida" }
+      ]
+    },
+    {
+      "region": "LEFT_LEG",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "speed", "delta": -6, "reason": "Perna esquerda em estado crítico" }
+      ]
+    },
+    {
+      "region": "RIGHT_LEG",
+      "severity": "SEVERE",
+      "modifiers": [
+        { "field": "speed", "delta": -3, "reason": "Perna direita severamente ferida" }
+      ]
+    },
+    {
+      "region": "RIGHT_LEG",
+      "severity": "CRITICAL",
+      "modifiers": [
+        { "field": "speed", "delta": -6, "reason": "Perna direita em estado crítico" }
+      ]
+    }
+  ]
+}

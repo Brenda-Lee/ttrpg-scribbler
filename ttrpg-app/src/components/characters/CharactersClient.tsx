@@ -145,18 +145,21 @@ export function CharactersClient({
               key={c.id}
               className="group relative flex h-full items-start gap-3 p-3 transition-colors hover:border-primary/40 hover:bg-accent/30"
             >
+              {/* Link absoluto cobre o card inteiro. As partes interativas
+                  (kebab menu) reabilitam pointer-events para não roubar o
+                  clique da navegação principal. */}
               <Link
                 href={`/projects/${projectId}/characters/${c.id}`}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0"
                 aria-label={`Abrir ${c.name}`}
               />
-              <Avatar className="relative z-10 h-12 w-12">
+              <Avatar className="pointer-events-none relative h-12 w-12">
                 <AvatarFallback>{initials(c.name)}</AvatarFallback>
               </Avatar>
-              <div className="relative z-10 min-w-0 flex-1">
+              <div className="pointer-events-none relative min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="truncate font-medium">{c.name}</h3>
-                  <div className="flex items-center gap-1">
+                  <div className="pointer-events-auto flex items-center gap-1">
                     <Badge variant="outline" className="text-[10px]">
                       {ROLE_LABEL[c.role] ?? c.role}
                     </Badge>

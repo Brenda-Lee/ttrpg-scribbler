@@ -1,0 +1,58 @@
+{
+  "systemSlug": "generic",
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "identity",
+      "title": "Identidade",
+      "fields": [
+        { "id": "race", "label": "Raça", "type": "text" },
+        { "id": "class", "label": "Classe", "type": "text" }
+      ]
+    },
+    {
+      "id": "attributes",
+      "title": "Atributos",
+      "fields": [
+        { "id": "attr1", "label": "Atributo 1", "type": "number", "default": 10 },
+        { "id": "attr2", "label": "Atributo 2", "type": "number", "default": 10 },
+        { "id": "attr3", "label": "Atributo 3", "type": "number", "default": 10 },
+        { "id": "attr4", "label": "Atributo 4", "type": "number", "default": 10 },
+        { "id": "attr5", "label": "Atributo 5", "type": "number", "default": 10 },
+        { "id": "attr6", "label": "Atributo 6", "type": "number", "default": 10 }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": "Combate",
+      "fields": [
+        { "id": "hp_current", "label": "PV atual", "type": "number", "default": 10 },
+        { "id": "hp_max", "label": "PV máximo", "type": "number", "default": 10 },
+        { "id": "speed", "label": "Velocidade", "type": "number", "default": 9, "unit": "m" }
+      ]
+    },
+    {
+      "id": "inventory",
+      "title": "Inventário",
+      "fields": [
+        {
+          "id": "items",
+          "label": "Itens",
+          "type": "repeating-list",
+          "itemSchema": [
+            { "id": "name", "label": "Nome", "type": "text" },
+            { "id": "qty", "label": "Quantidade", "type": "number", "default": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notes",
+      "title": "Notas",
+      "fields": [
+        { "id": "notes", "label": "Anotações", "type": "textarea" }
+      ]
+    }
+  ],
+  "injuryPresets": []
+}

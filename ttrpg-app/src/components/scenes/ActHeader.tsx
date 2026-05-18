@@ -54,7 +54,7 @@ export function ActHeader({
   }
 
   return (
-    <header className="flex items-baseline justify-between gap-2">
+    <header className="flex flex-wrap items-baseline justify-between gap-2">
       {editing ? (
         <Input
           autoFocus
@@ -69,17 +69,17 @@ export function ActHeader({
           }}
           onBlur={save}
           disabled={pending}
-          className="h-9 max-w-md text-xl font-semibold"
+          className="h-9 min-w-0 max-w-md flex-1 text-xl font-semibold"
         />
       ) : (
         <h2
-          className="cursor-text text-xl font-semibold tracking-tight"
+          className="min-w-0 flex-1 cursor-text break-words text-xl font-semibold tracking-tight"
           onDoubleClick={() => setEditing(true)}
         >
           {title}
         </h2>
       )}
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         {rightSlot}
         <EntityKebabMenu
           onRename={() => setEditing(true)}

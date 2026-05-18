@@ -169,18 +169,22 @@ function Section({
             >
               <Link
                 href={`${basePath}/${e.id}`}
-                className="absolute inset-0 z-0"
+                className="absolute inset-0"
                 aria-label={`Abrir ${e.name}`}
               />
-              <div className="relative z-10 flex items-start justify-between">
-                <h3 className="font-medium">{e.name}</h3>
-                <EntityKebabMenu
-                  stopPropagation
-                  onDelete={() => setDeleteTarget(e)}
-                />
+              <div className="pointer-events-none relative flex items-start justify-between gap-2">
+                <h3 className="min-w-0 flex-1 truncate font-medium">{e.name}</h3>
+                <div className="pointer-events-auto shrink-0">
+                  <EntityKebabMenu
+                    stopPropagation
+                    onDelete={() => setDeleteTarget(e)}
+                  />
+                </div>
               </div>
               {e.description ? (
-                <p className="relative z-10 text-sm text-muted-foreground">{e.description}</p>
+                <p className="pointer-events-none relative line-clamp-3 text-sm text-muted-foreground">
+                  {e.description}
+                </p>
               ) : null}
             </Card>
           ))
@@ -330,11 +334,11 @@ function LoreSection({
               >
                 <Link
                   href={`/projects/${projectId}/world/lore/${l.id}`}
-                  className="absolute inset-0 z-0"
+                  className="absolute inset-0"
                   aria-label={`Abrir ${l.title}`}
                 />
-                <div className="relative z-10 flex items-start justify-between gap-2">
-                  <div>
+                <div className="pointer-events-none relative flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
                     <h3 className="font-medium leading-tight">{l.title}</h3>
                     <Badge
                       variant="secondary"
@@ -343,10 +347,12 @@ function LoreSection({
                       {LORE_CATEGORY_LABEL[cat]}
                     </Badge>
                   </div>
-                  <EntityKebabMenu stopPropagation onDelete={() => setDeleteTarget(l)} />
+                  <div className="pointer-events-auto shrink-0">
+                    <EntityKebabMenu stopPropagation onDelete={() => setDeleteTarget(l)} />
+                  </div>
                 </div>
                 {l.excerpt ? (
-                  <p className="relative z-10 line-clamp-3 text-sm text-muted-foreground">
+                  <p className="pointer-events-none relative line-clamp-3 text-sm text-muted-foreground">
                     {l.excerpt}
                   </p>
                 ) : null}

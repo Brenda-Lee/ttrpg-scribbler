@@ -34,8 +34,15 @@ const ExportMention = Mention.extend({
  * configuração runtime (placeholder, suggestion popover, etc.) — apenas o
  * suficiente para o parser conhecer cada node/mark ao gerar HTML.
  */
+// StarterKit v3 already bundles `link` and `underline`; opt out so the
+// explicitly-imported versions don't trigger duplicate-extension warnings
+// during `generateHTML` (visible at /projects/[id]/export/print).
 const extensions = [
-  StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+  StarterKit.configure({
+    heading: { levels: [1, 2, 3] },
+    link: false,
+    underline: false,
+  }),
   Underline,
   Link,
   Typography,
